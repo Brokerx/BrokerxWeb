@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration>
+
+<appender name="GarnetFileAppender" class="org.apache.log4j.RollingFileAppender">
+   <param name="Threshold" value="DEBUG"/>
+   <param name="File" value="${catalina.base}/BrokerxLog/AppLog.log"/>
+   <param name="Append" value="true" />
+   <param name="MaxFileSize" value="20MB" />
+   <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d %-5p [%c{1}] %m %n"/>
+   </layout>
+</appender>
+ 
+<logger name="log4j.rootLogger" additivity="false">
+   <level value="DEBUG"/>
+   <level value="INFO"/>
+   <!--<appender-ref ref="SCFileAppender"/>-->
+</logger>
+
+ <root>
+   <level value="DEBUG"/>
+   <level value="INFO"/>
+  <appender-ref ref="GarnetFileAppender" />
+ </root>
+
+</log4j:configuration>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <Resource id="java:global/Brokerx" type="javax.sql.DataSource">#Sun Nov 13 22:19:49 IST 2016
+jdbcDriver=com.mysql.jdbc.Driver
+password=
+userName=root
+jdbcUrl=jdbc\:mysql\://localhost\:3306/Brokerx?zeroDateTimeBehavior\=convertToNull
+</Resource>
+</resources>
