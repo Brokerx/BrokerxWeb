@@ -29,7 +29,9 @@ import javax.validation.constraints.Size;
 @Entity
 @Table(name = "LeadHistory")
 @NamedQueries({
-    @NamedQuery(name = "LeadHistory.findAll", query = "SELECT l FROM LeadHistory l")})
+    @NamedQuery(name = "LeadHistory.findAll", query = "SELECT l FROM LeadHistory l"),
+    @NamedQuery(name = "LeadHistory.getByLeadID", query = "SELECT l FROM LeadHistory l where l.leadID=:leadID")
+})
 public class LeadHistory implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
@@ -57,7 +59,7 @@ public class LeadHistory implements Serializable {
     @Column(name = "Make")
     private String make;
     @Column(name = "Qty")
-    private Integer qty;
+    private BigDecimal qty;
     @Column(name = "QtyUnit")
     private Integer qtyUnit;
     @Column(name = "Packing")
@@ -167,11 +169,11 @@ public class LeadHistory implements Serializable {
         this.make = make;
     }
 
-    public Integer getQty() {
+    public BigDecimal getQty() {
         return qty;
     }
 
-    public void setQty(Integer qty) {
+    public void setQty(BigDecimal qty) {
         this.qty = qty;
     }
 

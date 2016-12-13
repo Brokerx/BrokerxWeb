@@ -8,20 +8,25 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.LeadHistory;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
+import com.google.gson.reflect.TypeToken;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +36,7 @@ import org.slf4j.LoggerFactory;
  */
 @Stateless
 public class LeadServiceBean implements LeadService {
+
     static final Logger logger = LoggerFactory.getLogger(BrokerxUserServiceBean.class);
 
     @PersistenceContext
@@ -39,25 +45,48 @@ public class LeadServiceBean implements LeadService {
     @Override
     public MessageDTO saveLead(Lead lead) {
         try {
+            Lead prevLead = null;
+            lead.setLastUpdDateTime(ApptDateUtils.getCurrentDateAndTime());
             if (lead.getLeadID() != null) {
+                prevLead = em.find(Lead.class, lead.getLeadID());
                 em.merge(lead);
             } else {
                 lead.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
                 em.persist(lead);
             }
+            LeadHistory leadHistory = mapLeadToLeadHistory(prevLead, lead);
+            em.persist(leadHistory);
+
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(lead);
-            User broker = em.find(User.class, lead.getBrokerID());
-            if(StringUtils.isNotBlank(broker.getGcmKey())) {
-                User createdUser = em.find(User.class,lead.getCreatedUserID());
-                GCMUtils.sendNotification(broker.getGcmKey(), createdUser.getFullName(), GCMUtils.TYPE_NEW_LEAD_ADDED);
-            }
+            sendGCMNotification(prevLead, lead);
             return messageDTO;
         } catch (Exception e) {
             logger.info(LeadServiceBean.class + " saveLead() : ERROR: " + e.toString());
         }
 
         return MessageDTO.getFailureDTO();
+    }
+
+    private void sendGCMNotification(Lead prevLead, Lead lead) {
+        User broker = em.find(User.class, lead.getBrokerID());
+        User createdUser = em.find(User.class, lead.getCreatedUserID());
+        String gcmKey = "", userName = "";
+
+        String type = GCMUtils.TYPE_NEW_LEAD_ADDED;
+        if (prevLead != null) {
+            type = GCMUtils.TYPE_LEAD_REVERTED;
+        }
+        if (lead.getLastUpdUserID().equals(createdUser)) {
+            gcmKey = broker.getGcmKey();
+            userName = createdUser.getFullName();
+        } else {
+            gcmKey = createdUser.getGcmKey();
+            userName = broker.getFullName();
+        }
+        if (StringUtils.isNotBlank(gcmKey)) {
+            GCMUtils.sendNotification(gcmKey, userName, type);
+        }
     }
 
     @Override
@@ -88,11 +117,11 @@ public class LeadServiceBean implements LeadService {
                 query.setParameter(param, queryParams.get(param));
             }
             List<Lead> leads = query.getResultList();
-            if(leads != null && !leads.isEmpty()) {
-                for(Lead lead : leads) {
-                    User broker = em.find(User.class, lead.getCreatedUserID());
+            if (leads != null && !leads.isEmpty()) {
+                for (Lead lead : leads) {
+                    User broker = em.find(User.class, lead.getBrokerID());
                     lead.setBroker(broker);
-                    if(lead.getAssignedToUserID() != null) {
+                    if (lead.getAssignedToUserID() != null) {
                         User assignedTouser = em.find(User.class, lead.getAssignedToUserID());
                         lead.setAssignedToUser(assignedTouser);
                     }
@@ -136,11 +165,11 @@ public class LeadServiceBean implements LeadService {
                 query.setParameter(param, queryParams.get(param));
             }
             List<Lead> leads = query.getResultList();
-            if(leads != null && !leads.isEmpty()) {
-                for(Lead lead : leads) {
+            if (leads != null && !leads.isEmpty()) {
+                for (Lead lead : leads) {
                     User createdUser = em.find(User.class, lead.getCreatedUserID());
                     lead.setCreatedUser(createdUser);
-                    if(lead.getAssignedToUserID() != null) {
+                    if (lead.getAssignedToUserID() != null) {
                         User assignedTouser = em.find(User.class, lead.getAssignedToUserID());
                         lead.setAssignedToUser(assignedTouser);
                     }
@@ -156,4 +185,112 @@ public class LeadServiceBean implements LeadService {
         return MessageDTO.getFailureDTO();
     }
 
+    @Override
+    public MessageDTO getLeadHistory(Integer leadID) {
+        try {
+            List<LeadHistory> leadHistories = em.createNamedQuery("LeadHistory.getByLeadID").setParameter("leadID", leadID).getResultList();
+            
+            List<Lead> leads = mapLeadHistoryToLead(leadHistories);
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            if (!leads.isEmpty()) {
+                List<Lead> historyLeads = new ArrayList<Lead>();
+                Lead parrentLead = em.find(Lead.class, leadID);
+                User createdUser = em.find(User.class, parrentLead.getCreatedUserID());
+                User assignedTouser = null;
+                if (parrentLead.getAssignedToUserID() != null) {
+                    assignedTouser = em.find(User.class, parrentLead.getAssignedToUserID());
+                }
+                User broker = em.find(User.class, parrentLead.getBrokerID());
+                for (Lead lead : leads) {
+                    lead.setCreatedUser(createdUser);
+                    lead.setAssignedToUser(assignedTouser);
+                    lead.setBroker(broker);
+                    lead.setType(parrentLead.getType());
+                    lead.setBrokerID(parrentLead.getBrokerID());
+                    lead.setItemName(parrentLead.getItemName());
+                    historyLeads.add(lead);
+                }
+                messageDTO.setData(historyLeads);
+            }
+            return messageDTO;
+        } catch (Exception e) {
+            logger.info(LeadServiceBean.class + " getLeadHistory() : ERROR: " + e.toString());
+        }
+
+        return MessageDTO.getFailureDTO();
+    }
+
+    private List<Lead> mapLeadHistoryToLead(List<LeadHistory> leadHistories) {
+        List<Lead> leads = new ArrayList<Lead>();
+        if (!leadHistories.isEmpty()) {
+            String historyJSON = JsonConverter.createJson(leadHistories);
+            leads = (List<Lead>) JsonConverter.getListFromJson(historyJSON, new TypeToken<List<Lead>>() {
+            }.getType());
+        }
+
+        return leads;
+    }
+
+    private LeadHistory mapLeadToLeadHistory(Lead prevLead, Lead lead) {
+        LeadHistory leadHistory = new LeadHistory();
+        leadHistory.setLeadID(lead.getLeadID());
+        leadHistory.setAgainstForm(lead.getAgainstForm());
+        leadHistory.setAssignedToUserID(lead.getAssignedToUserID());
+        leadHistory.setBasicPrice(lead.getBasicPrice());
+        leadHistory.setBrokerageAmt(lead.getBrokerageAmt());
+        leadHistory.setComments(lead.getComments());
+        leadHistory.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        leadHistory.setCreatedUserID(lead.getLastUpdUserID());
+        String createdUserType;
+        if (lead.getCreatedUserID() == lead.getLastUpdUserID()) {
+            if (lead.getType().equals("B")) {
+                createdUserType = "Buyer";
+            } else {
+                createdUserType = "Seller";
+            }
+        } else if (lead.getCreatedUserID() == lead.getAssignedToUserID()) {
+            if (lead.getType().equals("B")) {
+                createdUserType = "Seller";
+            } else {
+                createdUserType = "Buyer";
+            }
+        } else {
+            createdUserType = "Broker";
+        }
+        leadHistory.setCreatedUserType(createdUserType);
+        leadHistory.setCreditPeriod(lead.getCreditPeriod());
+        leadHistory.setCurrentStatus(lead.getCurrentStatus());
+        leadHistory.setExciseDuty(lead.getExciseDuty());
+        if (prevLead != null) {
+            String fieldsAltered = getFieldsAltered(prevLead, lead);
+            leadHistory.setFieldsAltered(fieldsAltered);
+        } else {
+            leadHistory.setFieldsAltered("created the Lead");
+        }
+        leadHistory.setFreeStoragePeriod(lead.getFreeStoragePeriod());
+        leadHistory.setLocation(lead.getLocation());
+        leadHistory.setMake(lead.getMake());
+        leadHistory.setMiscCharges(lead.getMiscCharges());
+        leadHistory.setPacking(lead.getPacking());
+        leadHistory.setPreferredSellerName(lead.getPreferredSellerName());
+        leadHistory.setQty(lead.getQty());
+        leadHistory.setQtyUnit(lead.getQtyUnit());
+        leadHistory.setTransportCharges(lead.getTransportCharges());
+        return leadHistory;
+    }
+
+    private String getFieldsAltered(Lead prevLead, Lead lead) {
+        StringBuilder alteredFileds = new StringBuilder();
+        ObjectMapper m = new ObjectMapper();
+        Map<String, Object> prevLeadMap = m.convertValue(prevLead, Map.class);
+        Map<String, Object> nweLeadMap = m.convertValue(lead, Map.class);
+        for (String key : prevLeadMap.keySet()) {
+            if (!Objects.equals(prevLeadMap.get(key), nweLeadMap.get(key))) {
+                alteredFileds.append(key).append(", ");
+            }
+        }
+        String fields = alteredFileds.toString();
+        fields = fields.substring(0, fields.lastIndexOf(",")).trim();
+        return fields;
+    }
 }

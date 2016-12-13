@@ -5,14 +5,14 @@
  */
 package com.firstidea.garnet.web.brokerx.ctrl;
 
-import java.util.Date;
-
 /**
  *
  * @author Govind
+ * 
  */
 public interface LeadCtrl extends AuthenticationCtrl{
     public String saveLead(String leadJSON);
     public String getLeads(Integer userID, String type, String status,String startDate, String endDate);
     public String getLeadsByBroker(Integer userID, String type, String status,String startDate, String endDate);
+    public String getLeadHistory(Integer leadID);
 }

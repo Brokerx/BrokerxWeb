@@ -49,4 +49,9 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
         return JsonConverter.createJson(leadService.getLeadsByBroker(userID, type, status, start, end));
     }
 
+    @Override
+    public String getLeadHistory(Integer leadID) {
+        return JsonConverter.createJson(leadService.getLeadHistory(leadID));
+    }
+
 }

@@ -45,30 +45,38 @@ public class LeadResource extends AppResource {
     @Path("/getLeads")
     @Produces("application/json")
     public String getLeads(@FormParam("userID") Integer userID,
-            @FormParam("type")String type,
-            @FormParam("status")String status,
-            @FormParam("startDate")String startDate,
-            @FormParam("endDate")String endDate) {
+            @FormParam("type") String type,
+            @FormParam("status") String status,
+            @FormParam("startDate") String startDate,
+            @FormParam("endDate") String endDate) {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
-        
+
         String response = leadCtrl.getLeads(userID, type, status, startDate, endDate);
         return response;
     }
-    
+
     @POST
     @Path("/getBrokerLeads")
     @Produces("application/json")
     public String getBrokerLeads(@FormParam("brokerID") Integer brokerID,
-            @FormParam("type")String type,
-            @FormParam("status")String status,
-            @FormParam("startDate")String startDate,
-            @FormParam("endDate")String endDate) {
+            @FormParam("type") String type,
+            @FormParam("status") String status,
+            @FormParam("startDate") String startDate,
+            @FormParam("endDate") String endDate) {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
-        
+
         String response = leadCtrl.getLeadsByBroker(brokerID, type, status, startDate, endDate);
         return response;
     }
 
+    @POST
+    @Path("/getLeadHistory")
+    @Produces("application/json")
+    public String getLeadHistory(@FormParam("leadID") Integer leadID) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        return leadCtrl.getLeadHistory(leadID);
+    }
 }

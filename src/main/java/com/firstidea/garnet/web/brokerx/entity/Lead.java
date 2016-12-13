@@ -32,6 +32,7 @@ import javax.validation.constraints.Size;
 @NamedQueries({
     @NamedQuery(name = "Lead.findAll", query = "SELECT l FROM Lead l")})
 public class Lead implements Serializable {
+
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -104,13 +105,20 @@ public class Lead implements Serializable {
     @Column(name = "CreatedDttm")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDttm;
-    
+    @Column(name = "LastUpdUserID")
+    private Integer LastUpdUserID;
+    @Column(name = "LastUpdDateTime")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date lastUpdDateTime;
+
     @Transient
     User createdUser;
     @Transient
     User broker;
     @Transient
     User assignedToUser;
+    @Transient
+    private String fieldsAltered;
 
     public Lead() {
     }
@@ -340,6 +348,22 @@ public class Lead implements Serializable {
         this.createdDttm = createdDttm;
     }
 
+    public Integer getLastUpdUserID() {
+        return LastUpdUserID;
+    }
+
+    public void setLastUpdUserID(Integer LastUpdUserID) {
+        this.LastUpdUserID = LastUpdUserID;
+    }
+
+    public Date getLastUpdDateTime() {
+        return lastUpdDateTime;
+    }
+
+    public void setLastUpdDateTime(Date lastUpdDateTime) {
+        this.lastUpdDateTime = lastUpdDateTime;
+    }
+
     public User getCreatedUser() {
         return createdUser;
     }
@@ -362,6 +386,14 @@ public class Lead implements Serializable {
 
     public void setAssignedToUser(User assignedToUser) {
         this.assignedToUser = assignedToUser;
+    }
+
+    public String getFieldsAltered() {
+        return fieldsAltered;
+    }
+
+    public void setFieldsAltered(String fieldsAltered) {
+        this.fieldsAltered = fieldsAltered;
     }
 
     @Override
@@ -388,5 +420,5 @@ public class Lead implements Serializable {
     public String toString() {
         return "com.firstidea.garnet.web.brokerx.entity.Lead[ leadID=" + leadID + " ]";
     }
-    
+
 }
