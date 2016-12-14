@@ -46,15 +46,17 @@ public class LeadServiceBean implements LeadService {
     public MessageDTO saveLead(Lead lead) {
         try {
             Lead prevLead = null;
+            String fieldsAltered = null;
             lead.setLastUpdDateTime(ApptDateUtils.getCurrentDateAndTime());
             if (lead.getLeadID() != null) {
                 prevLead = em.find(Lead.class, lead.getLeadID());
-                em.merge(lead);
+                fieldsAltered = getFieldsAltered(prevLead, lead);
+                lead = em.merge(lead);
             } else {
                 lead.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
                 em.persist(lead);
             }
-            LeadHistory leadHistory = mapLeadToLeadHistory(prevLead, lead);
+            LeadHistory leadHistory = mapLeadToLeadHistory(fieldsAltered, lead);
             em.persist(leadHistory);
 
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
@@ -189,7 +191,7 @@ public class LeadServiceBean implements LeadService {
     public MessageDTO getLeadHistory(Integer leadID) {
         try {
             List<LeadHistory> leadHistories = em.createNamedQuery("LeadHistory.getByLeadID").setParameter("leadID", leadID).getResultList();
-            
+
             List<Lead> leads = mapLeadHistoryToLead(leadHistories);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             if (!leads.isEmpty()) {
@@ -208,6 +210,10 @@ public class LeadServiceBean implements LeadService {
                     lead.setType(parrentLead.getType());
                     lead.setBrokerID(parrentLead.getBrokerID());
                     lead.setItemName(parrentLead.getItemName());
+                    lead.setItemID(parrentLead.getItemID());
+                    lead.setBasicPriceUnit(parrentLead.getBasicPriceUnit());
+                    lead.setExciseUnit(parrentLead.getExciseUnit());
+                    lead.setAsPerAvailablity(parrentLead.getAsPerAvailablity());
                     historyLeads.add(lead);
                 }
                 messageDTO.setData(historyLeads);
@@ -231,7 +237,7 @@ public class LeadServiceBean implements LeadService {
         return leads;
     }
 
-    private LeadHistory mapLeadToLeadHistory(Lead prevLead, Lead lead) {
+    private LeadHistory mapLeadToLeadHistory(String fieldsAltered, Lead lead) {
         LeadHistory leadHistory = new LeadHistory();
         leadHistory.setLeadID(lead.getLeadID());
         leadHistory.setAgainstForm(lead.getAgainstForm());
@@ -259,10 +265,12 @@ public class LeadServiceBean implements LeadService {
         }
         leadHistory.setCreatedUserType(createdUserType);
         leadHistory.setCreditPeriod(lead.getCreditPeriod());
-        leadHistory.setCurrentStatus(lead.getCurrentStatus());
+        leadHistory.setBuyerStatus(lead.getBuyerStatus());
+        leadHistory.setSellerStatus(lead.getSellerStatus());
+        leadHistory.setBrokerStatus(lead.getBrokerStatus());
         leadHistory.setExciseDuty(lead.getExciseDuty());
-        if (prevLead != null) {
-            String fieldsAltered = getFieldsAltered(prevLead, lead);
+        if (fieldsAltered != null) {
+//            String fieldsAltered = getFieldsAltered(prevLead, lead);
             leadHistory.setFieldsAltered(fieldsAltered);
         } else {
             leadHistory.setFieldsAltered("created the Lead");
@@ -290,7 +298,9 @@ public class LeadServiceBean implements LeadService {
             }
         }
         String fields = alteredFileds.toString();
-        fields = fields.substring(0, fields.lastIndexOf(",")).trim();
+        if (fields.contains(",")) {
+            fields = fields.substring(0, fields.lastIndexOf(",")).trim();
+        }
         return fields;
     }
 }

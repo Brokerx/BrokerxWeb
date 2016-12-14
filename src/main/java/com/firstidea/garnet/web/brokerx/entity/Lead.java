@@ -56,8 +56,14 @@ public class Lead implements Serializable {
     @Column(name = "Type")
     private String type;
     @Size(max = 2)
-    @Column(name = "CurrentStatus")
-    private String currentStatus;
+    @Column(name = "BuyerStatus")
+    private String buyerStatus;
+    @Size(max = 2)
+    @Column(name = "SellerStatus")
+    private String sellerStatus;
+    @Size(max = 2)
+    @Column(name = "BrokerStatus")
+    private String brokerStatus;
     @Size(max = 50)
     @Column(name = "Make")
     private String make;
@@ -188,12 +194,28 @@ public class Lead implements Serializable {
         this.type = type;
     }
 
-    public String getCurrentStatus() {
-        return currentStatus;
+    public String getBuyerStatus() {
+        return buyerStatus;
     }
 
-    public void setCurrentStatus(String currentStatus) {
-        this.currentStatus = currentStatus;
+    public void setBuyerStatus(String BuyerStatus) {
+        this.buyerStatus = BuyerStatus;
+    }
+
+    public String getSellerStatus() {
+        return sellerStatus;
+    }
+
+    public void setSellerStatus(String sellerStatus) {
+        this.sellerStatus = sellerStatus;
+    }
+
+    public String getBrokerStatus() {
+        return brokerStatus;
+    }
+
+    public void setBrokerStatus(String BrokerStatus) {
+        this.brokerStatus = BrokerStatus;
     }
 
     public String getMake() {

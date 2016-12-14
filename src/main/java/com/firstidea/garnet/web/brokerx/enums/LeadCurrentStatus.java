@@ -11,8 +11,7 @@ package com.firstidea.garnet.web.brokerx.enums;
  */
 public enum LeadCurrentStatus {
 
-    BUYER_POSTED("BP"), SELLER_POSTED("SP"),BUYER_REVERTED("BR"), SELLER_REVERTED("SR"),
-    BROKER_REVERTED("RR"), BROKER_ACCEPTED("BA"), BUYER_BROKER_ACCEPTED("BRA"),;
+    Accepted("A"), Rejected("X"), Reverted("R"), Pending("P"),Done("D");
 
     final String status;
 

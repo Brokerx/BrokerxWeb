@@ -53,8 +53,14 @@ public class LeadHistory implements Serializable {
     @Column(name = "AssignedToUserID")
     private Integer assignedToUserID;
     @Size(max = 2)
-    @Column(name = "CurrentStatus")
-    private String currentStatus;
+    @Column(name = "BuyerStatus")
+    private String buyerStatus;
+    @Size(max = 2)
+    @Column(name = "SellerStatus")
+    private String sellerStatus;
+    @Size(max = 2)
+    @Column(name = "BrokerStatus")
+    private String brokerStatus;
     @Size(max = 50)
     @Column(name = "Make")
     private String make;
@@ -153,12 +159,28 @@ public class LeadHistory implements Serializable {
         this.assignedToUserID = assignedToUserID;
     }
 
-    public String getCurrentStatus() {
-        return currentStatus;
+    public String getBuyerStatus() {
+        return buyerStatus;
     }
 
-    public void setCurrentStatus(String currentStatus) {
-        this.currentStatus = currentStatus;
+    public void setBuyerStatus(String buyerStatus) {
+        this.buyerStatus = buyerStatus;
+    }
+
+    public String getSellerStatus() {
+        return sellerStatus;
+    }
+
+    public void setSellerStatus(String sellerStatus) {
+        this.sellerStatus = sellerStatus;
+    }
+
+    public String getBrokerStatus() {
+        return brokerStatus;
+    }
+
+    public void setBrokerStatus(String brokerStatus) {
+        this.brokerStatus = brokerStatus;
     }
 
     public String getMake() {
