@@ -293,6 +293,9 @@ public class LeadServiceBean implements LeadService {
         Map<String, Object> prevLeadMap = m.convertValue(prevLead, Map.class);
         Map<String, Object> nweLeadMap = m.convertValue(lead, Map.class);
         for (String key : prevLeadMap.keySet()) {
+            if (key.contains("Status") || key.contains("lastUpdDateTime") || key.contains("createdUser")) {
+                continue;
+            }
             if (!Objects.equals(prevLeadMap.get(key), nweLeadMap.get(key))) {
                 alteredFileds.append(key).append(", ");
             }
