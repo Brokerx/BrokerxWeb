@@ -47,6 +47,8 @@ public class Lead implements Serializable {
     private Integer brokerID;
     @Column(name = "AssignedToUserID")
     private Integer assignedToUserID;
+    @Column(name = "ParentLeadID")
+    private Integer parentLeadID;
     @Column(name = "ItemID")
     private Integer itemID;
     @Size(max = 100)
@@ -168,6 +170,14 @@ public class Lead implements Serializable {
 
     public void setAssignedToUserID(Integer assignedToUserID) {
         this.assignedToUserID = assignedToUserID;
+    }
+
+    public Integer getParentLeadID() {
+        return parentLeadID;
+    }
+
+    public void setParentLeadID(Integer parentLeadID) {
+        this.parentLeadID = parentLeadID;
     }
 
     public Integer getItemID() {

@@ -31,8 +31,8 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
 
     @Override
     public String getLeads(Integer userID, String type, String status, String startDate, String endDate) {
-         Date start = null, end=null;
-        if(StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
+        Date start = null, end = null;
+        if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
             start = ApptDateUtils.getFormatedDate(startDate);
             end = ApptDateUtils.getFormatedDate(endDate);
         }
@@ -41,8 +41,8 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
 
     @Override
     public String getLeadsByBroker(Integer userID, String type, String status, String startDate, String endDate) {
-        Date start = null, end=null;
-        if(StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
+        Date start = null, end = null;
+        if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
             start = ApptDateUtils.getFormatedDate(startDate);
             end = ApptDateUtils.getFormatedDate(endDate);
         }
@@ -54,4 +54,23 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
         return JsonConverter.createJson(leadService.getLeadHistory(leadID));
     }
 
+    @Override
+    public String getActiveLeads(Integer userID, String type) {
+        return JsonConverter.createJson(leadService.getActiveLeads(userID, type));
+    }
+
+    @Override
+    public String getHistory(Integer userID, String startDateString, String endDateString) {
+        Date startDate = null, endDate = null;
+        if (startDateString != null && endDateString != null) {
+            startDate = ApptDateUtils.getFormatedDate(startDateString);
+            endDate = ApptDateUtils.getFormatedDate(endDateString);
+        }
+        return JsonConverter.createJson(leadService.getHistory(userID, startDate, endDate));
+    }
+    
+    @Override
+    public String dealDone(Integer leadID) {
+        return JsonConverter.createJson(leadService.dealDone(leadID));
+    }
 }

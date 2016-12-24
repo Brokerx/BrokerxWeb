@@ -20,4 +20,7 @@ public interface LeadService {
     public MessageDTO getLeads(Integer userID, String type, String status,Date startDate, Date endDate);
     public MessageDTO getLeadsByBroker(Integer userID, String type, String status,Date startDate, Date endDate);
     public MessageDTO getLeadHistory(Integer leadID);
+    public MessageDTO getActiveLeads(Integer userID, String type);
+    public MessageDTO getHistory(Integer userID, Date startDate, Date endDate);
+    public MessageDTO dealDone(Integer leadID);
 }

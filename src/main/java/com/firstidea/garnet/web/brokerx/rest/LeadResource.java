@@ -79,4 +79,34 @@ public class LeadResource extends AppResource {
         leadCtrl.setUserRequest(request);
         return leadCtrl.getLeadHistory(leadID);
     }
+
+    @POST
+    @Path("/getActiveLeads")
+    @Produces("application/json")
+    public String getActiveLeads(@FormParam("userID") Integer userID,
+            @FormParam("type") String type) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        return leadCtrl.getActiveLeads(userID, type);
+    }
+
+    @POST
+    @Path("/getHistory")
+    @Produces("application/json")
+    public String getHistory(@FormParam("userID") Integer userID,
+            @FormParam("startDate") String startDate,
+            @FormParam("endDate") String endDate) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        return leadCtrl.getHistory(userID, startDate, endDate);
+    }
+    
+    @POST
+    @Path("/dealDone")
+    @Produces("application/json")
+    public String dealDone(@FormParam("leadID")  Integer leadID) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        return leadCtrl.dealDone(leadID);
+    }
 }
