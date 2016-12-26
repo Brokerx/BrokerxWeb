@@ -18,4 +18,7 @@ public interface LeadCtrl extends AuthenticationCtrl{
     public String getActiveLeads(Integer userID, String type);
     public String getHistory(Integer userID, String startDate, String endDate);
     public String dealDone(Integer leadID);
+    public String getLeadStatusHistory(Integer leadID);
+    public String saveLeadStatusHistory(String leadStatusHistoryJSON);
+    public String getLeadDocuments(Integer leadID);
 }

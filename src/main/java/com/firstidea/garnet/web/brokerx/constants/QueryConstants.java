@@ -31,5 +31,8 @@ public interface QueryConstants {
     String GET_USERS_ALL_CONNECTIONS = "SELECT uc FROM UserConnection uc"
             + " WHERE uc.fromUserID = :userID"
             + " OR uc.toUserID=:userID";
+    
+    String GET_LEAD_DOCUMENTS_BY_LEADID = "SELECT ld FROM LeadDocument ld"
+            + " WHERE ld.leadID=:leadID";
 
 }

@@ -8,6 +8,7 @@ package com.firstidea.garnet.web.brokerx.ctrl.impl;
 import com.firstidea.garnet.web.brokerx.auth.Authentication;
 import com.firstidea.garnet.web.brokerx.ctrl.LeadCtrl;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import com.firstidea.garnet.web.brokerx.service.JndiService;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
@@ -72,5 +73,21 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
     @Override
     public String dealDone(Integer leadID) {
         return JsonConverter.createJson(leadService.dealDone(leadID));
+    }
+    
+    @Override
+    public String getLeadStatusHistory(Integer leadID) {
+        return JsonConverter.createJson(leadService.getLeadStatusHistory(leadID));
+    }
+    
+    @Override
+    public String saveLeadStatusHistory(String leadStatusHistoryJSON){
+        LeadStatusHistory leadStatusHistory = (LeadStatusHistory) JsonConverter.parseJsonWithDateFormat(leadStatusHistoryJSON, LeadStatusHistory.class, "MMM dd, yyyy hh:mm:ss a");
+        return JsonConverter.createJson(leadService.saveLeadStatusHistory(leadStatusHistory));
+    }
+    
+    @Override
+    public String getLeadDocuments(Integer leadID){
+        return JsonConverter.createJson(leadService.getLeadDocuments(leadID));
     }
 }

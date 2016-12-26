@@ -42,6 +42,16 @@ public class LeadResource extends AppResource {
     }
 
     @POST
+    @Path("/saveLeadStatusHistory")
+    @Produces("application/json")
+    public String saveLeadStatusHistory(String leadStatusHistoryJSON) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        String response = leadCtrl.saveLeadStatusHistory(leadStatusHistoryJSON);
+        return response;
+    }
+
+    @POST
     @Path("/getLeads")
     @Produces("application/json")
     public String getLeads(@FormParam("userID") Integer userID,
@@ -53,6 +63,29 @@ public class LeadResource extends AppResource {
         leadCtrl.setUserRequest(request);
 
         String response = leadCtrl.getLeads(userID, type, status, startDate, endDate);
+        return response;
+    }
+    
+
+    @POST
+    @Path("/getLeadDocuments")
+    @Produces("application/json")
+    public String getLeadDocuments(@FormParam("leadID") Integer leadID) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+
+        String response = leadCtrl.getLeadDocuments(leadID);
+        return response;
+    }
+    
+    @POST
+    @Path("/getLeadStatusHistory")
+    @Produces("application/json")
+    public String getLeadStatusHistory(@FormParam("leadID") Integer leadID) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+
+        String response = leadCtrl.getLeadStatusHistory(leadID);
         return response;
     }
 

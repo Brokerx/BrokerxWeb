@@ -7,6 +7,7 @@ package com.firstidea.garnet.web.brokerx.service;
 
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import java.util.Date;
 import javax.ejb.Local;
 
@@ -23,4 +24,7 @@ public interface LeadService {
     public MessageDTO getActiveLeads(Integer userID, String type);
     public MessageDTO getHistory(Integer userID, Date startDate, Date endDate);
     public MessageDTO dealDone(Integer leadID);
+    public MessageDTO getLeadStatusHistory(Integer leadID);
+    public MessageDTO saveLeadStatusHistory(LeadStatusHistory leadStatusHistory);
+    public MessageDTO getLeadDocuments(Integer leadID);
 }

@@ -95,6 +95,10 @@ public class Lead implements Serializable {
     private BigDecimal miscCharges;
     @Column(name = "BrokerageAmt")
     private BigDecimal brokerageAmt;
+    @Column(name = "BuyerBrokerage")
+    private BigDecimal buyerBrokerage;
+    @Column(name = "SellerBrokerage")
+    private BigDecimal sellerBrokerage;
     @Size(max = 250)
     @Column(name = "AgainstForm")
     private String againstForm;
@@ -330,6 +334,22 @@ public class Lead implements Serializable {
 
     public void setBrokerageAmt(BigDecimal brokerageAmt) {
         this.brokerageAmt = brokerageAmt;
+    }
+
+    public BigDecimal getBuyerBrokerage() {
+        return buyerBrokerage;
+    }
+
+    public void setBuyerBrokerage(BigDecimal buyerBrokerage) {
+        this.buyerBrokerage = buyerBrokerage;
+    }
+
+    public BigDecimal getSellerBrokerage() {
+        return sellerBrokerage;
+    }
+
+    public void setSellerBrokerage(BigDecimal sellerBrokerage) {
+        this.sellerBrokerage = sellerBrokerage;
     }
 
     public String getAgainstForm() {

@@ -8,7 +8,9 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.LeadDocument;
 import com.firstidea.garnet.web.brokerx.entity.LeadHistory;
+import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.enums.LeadCurrentStatus;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
@@ -56,9 +58,9 @@ public class LeadServiceBean implements LeadService {
                 lead = em.merge(lead);
             } else {
                 lead.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
-                if(lead.getParentLeadID() != null) {
-                    Lead parentLead= em.find(Lead.class, lead.getParentLeadID());
-                    if(parentLead.getType().equals("B")) {
+                if (lead.getParentLeadID() != null) {
+                    Lead parentLead = em.find(Lead.class, lead.getParentLeadID());
+                    if (parentLead.getType().equals("B")) {
                         parentLead.setBuyerStatus(LeadCurrentStatus.Accepted.getStatus());
                     } else {
                         parentLead.setSellerStatus(LeadCurrentStatus.Accepted.getStatus());
@@ -90,7 +92,7 @@ public class LeadServiceBean implements LeadService {
         String type = GCMUtils.TYPE_NEW_LEAD_ADDED;
         if (prevLead != null) {
             type = GCMUtils.TYPE_LEAD_REVERTED;
-        } 
+        }
         if (lead.getLastUpdUserID().equals(createdUser)) {
             gcmKey = broker.getGcmKey();
             userName = createdUser.getFullName();
@@ -98,7 +100,7 @@ public class LeadServiceBean implements LeadService {
             gcmKey = createdUser.getGcmKey();
             userName = broker.getFullName();
         }
-        
+
         if (StringUtils.isNotBlank(gcmKey)) {
             GCMUtils.sendNotification(gcmKey, userName, type);
         }
@@ -113,10 +115,10 @@ public class LeadServiceBean implements LeadService {
                 queryString.append(" AND l.createdUserID= :createdUserID");
                 queryParams.put("createdUserID", userID);
             }
-            String statusColumnName = type.equals("B")? "l.buyerStatus": "l.sellerStatus";
-            String includeStatus = ""+LeadCurrentStatus.Accepted.getStatus()+","+LeadCurrentStatus.Waiting.getStatus()+","+LeadCurrentStatus.Reverted.getStatus();
+            String statusColumnName = type.equals("B") ? "l.buyerStatus" : "l.sellerStatus";
+            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
             List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
-            queryString.append(" AND "+statusColumnName+" IN (:includeStatus) "
+            queryString.append(" AND " + statusColumnName + " IN (:includeStatus) "
                     + " AND l.assignedToUserID Is Null");
             queryParams.put("includeStatus", includeStatusList);
             Query query = em.createQuery(queryString.toString());
@@ -143,25 +145,38 @@ public class LeadServiceBean implements LeadService {
 
         return MessageDTO.getFailureDTO();
     }
-    
+
     @Override
-    public MessageDTO dealDone(Integer leadID){
+    public MessageDTO dealDone(Integer leadID) {
         try {
             Lead childLead = em.find(Lead.class, leadID);
             Lead parentLead = em.find(Lead.class, childLead.getParentLeadID());
             parentLead.setBuyerStatus(LeadCurrentStatus.Deleted.getStatus());
             parentLead.setSellerStatus(LeadCurrentStatus.Deleted.getStatus());
             parentLead.setBrokerStatus(LeadCurrentStatus.Deleted.getStatus());
-            
+
             childLead.setBuyerStatus(LeadCurrentStatus.Done.getStatus());
             childLead.setSellerStatus(LeadCurrentStatus.Done.getStatus());
             childLead.setBrokerStatus(LeadCurrentStatus.Done.getStatus());
             childLead.setAssignedToUserID(childLead.getCreatedUserID());
             childLead.setCreatedUserID(parentLead.getCreatedUserID());
             childLead.setType(parentLead.getType());
-            
+
+            LeadStatusHistory leadStatusHistory = new LeadStatusHistory();
+            leadStatusHistory.setLeadID(childLead.getLeadID());
+            leadStatusHistory.setCurrentStatus(1);
+            leadStatusHistory.setDealDoneDateTime(ApptDateUtils.getCurrentDateAndTime());
+            em.persist(leadStatusHistory);
+
+            if (parentLead.getType().equals("B")) {
+                childLead.setBuyerBrokerage(parentLead.getBrokerageAmt());
+                childLead.setSellerBrokerage(childLead.getBrokerageAmt());
+            } else {
+                childLead.setBuyerBrokerage(childLead.getBrokerageAmt());
+                childLead.setSellerBrokerage(parentLead.getBrokerageAmt());
+            }
+
             //TODO Send notification to seller and buyer
-            
             em.merge(parentLead);
             childLead = em.merge(childLead);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
@@ -170,7 +185,35 @@ public class LeadServiceBean implements LeadService {
         } catch (Exception e) {
             logger.info(LeadServiceBean.class + " dealDone() : ERROR: " + e.toString());
         }
-        
+
+        return MessageDTO.getFailureDTO();
+    }
+
+    @Override
+    public MessageDTO saveLeadStatusHistory(LeadStatusHistory leadStatusHistory) {
+        try {
+            em.merge(leadStatusHistory);
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(leadStatusHistory);
+            return messageDTO;
+        } catch (Exception e) {
+            logger.info(LeadServiceBean.class + " saveLeadStatusHistory() : ERROR: " + e.toString());
+        }
+
+        return MessageDTO.getFailureDTO();
+    }
+
+    @Override
+    public MessageDTO getLeadStatusHistory(Integer leadID) {
+        try {
+            LeadStatusHistory leadStatusHistory = em.find(LeadStatusHistory.class, leadID);
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(leadStatusHistory);
+            return messageDTO;
+        } catch (Exception e) {
+            logger.info(LeadServiceBean.class + " getLeadStatusHistory() : ERROR: " + e.toString());
+        }
+
         return MessageDTO.getFailureDTO();
     }
 
@@ -198,13 +241,23 @@ public class LeadServiceBean implements LeadService {
             }
             List<Lead> leads = query.getResultList();
             if (leads != null && !leads.isEmpty()) {
+                List<Integer> userIDs = new ArrayList<Integer>();
                 for (Lead lead : leads) {
-                    User broker = em.find(User.class, lead.getBrokerID());
-                    lead.setBroker(broker);
-                    if (lead.getAssignedToUserID() != null) {
-                        User assignedTouser = em.find(User.class, lead.getAssignedToUserID());
-                        lead.setAssignedToUser(assignedTouser);
-                    }
+                    userIDs.add(lead.getCreatedUserID());
+                    userIDs.add(lead.getBrokerID());
+                    userIDs.add(lead.getAssignedToUserID());
+                }
+                Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                        .setParameter("userIDs", userIDs);
+                List<User> users = userQuery.getResultList();
+                Map<Integer, User> usersMap = new HashMap();
+                for (User user : users) {
+                    usersMap.put(user.getUserID(), user);
+                }
+                for (Lead lead : leads) {
+                    lead.setBroker(usersMap.get(lead.getBrokerID()));
+                    lead.setAssignedToUser(usersMap.get(lead.getAssignedToUserID()));
+                    lead.setCreatedUser(usersMap.get(lead.getCreatedUserID()));
                 }
             }
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
@@ -232,8 +285,8 @@ public class LeadServiceBean implements LeadService {
                 queryParams.put("type", type);
             }
             if (status != null) {
-                String statusColumnName = type.equals("B")? "buyerStatus": "sellerStatus";
-                queryString.append(" AND l."+statusColumnName+"= :currentStatus");
+                String statusColumnName = type.equals("B") ? "buyerStatus" : "sellerStatus";
+                queryString.append(" AND l." + statusColumnName + "= :currentStatus");
                 queryParams.put("currentStatus", status);
             }
             if (startDate != null && endDate != null) {
@@ -432,5 +485,21 @@ public class LeadServiceBean implements LeadService {
             fields = fields.substring(0, fields.lastIndexOf(",")).trim();
         }
         return fields;
+    }
+
+    @Override
+    public MessageDTO getLeadDocuments(Integer leadID) {
+        try {
+            Query query = em.createQuery(QueryConstants.GET_LEAD_DOCUMENTS_BY_LEADID)
+                    .setParameter("leadID", leadID);
+            List<LeadDocument> leadDocuments = query.getResultList();
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(leadDocuments);
+            return messageDTO;
+        } catch (Exception e) {
+            logger.info(LeadServiceBean.class + " getLeadDocuments() : ERROR: " + e.toString());
+        }
+
+        return MessageDTO.getFailureDTO();
     }
 }
