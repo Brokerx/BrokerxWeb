@@ -35,6 +35,7 @@ public class FileUploadHelper {
     public static String FILTE_TYPE_CATEGORY_INFO = "CategoryInfo";
     public static String FILTE_TYPE_COMMUNICATIONS = "Communications";
     public static String FILTE_TYPE_USER_PROFILE_PHOTO = "UserProfilePhotos";
+    public static String FILTE_TYPE_LEAD_DOCUMENTS = "LeadDocuments";
 
     public static String getUploadDirectoryPath() {
         //System.getProperty("jboss.home.dir") Use it for Jboss

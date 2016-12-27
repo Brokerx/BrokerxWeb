@@ -7,9 +7,12 @@ package com.firstidea.garnet.web.brokerx.service;
 
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.LeadDocument;
 import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import java.util.Date;
+import java.util.Map;
 import javax.ejb.Local;
+import org.apache.commons.fileupload.FileItem;
 
 /**
  *
@@ -27,4 +30,5 @@ public interface LeadService {
     public MessageDTO getLeadStatusHistory(Integer leadID);
     public MessageDTO saveLeadStatusHistory(LeadStatusHistory leadStatusHistory);
     public MessageDTO getLeadDocuments(Integer leadID);
+    public MessageDTO uploadDocument(LeadDocument leadDocument, Map<String, FileItem> fileItemsMap);
 }

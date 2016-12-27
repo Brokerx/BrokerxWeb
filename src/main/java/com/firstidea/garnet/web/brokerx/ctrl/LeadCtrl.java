@@ -5,6 +5,9 @@
  */
 package com.firstidea.garnet.web.brokerx.ctrl;
 
+import java.util.Map;
+import org.apache.commons.fileupload.FileItem;
+
 /**
  *
  * @author Govind
@@ -21,4 +24,5 @@ public interface LeadCtrl extends AuthenticationCtrl{
     public String getLeadStatusHistory(Integer leadID);
     public String saveLeadStatusHistory(String leadStatusHistoryJSON);
     public String getLeadDocuments(Integer leadID);
+    public String uploadDocument(String fileJSON, Map<String, FileItem> fileItemsMap);
 }

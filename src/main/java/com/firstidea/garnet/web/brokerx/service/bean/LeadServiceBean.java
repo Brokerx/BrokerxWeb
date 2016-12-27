@@ -13,7 +13,9 @@ import com.firstidea.garnet.web.brokerx.entity.LeadHistory;
 import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.enums.LeadCurrentStatus;
+import com.firstidea.garnet.web.brokerx.filehandling.FileUploadHelper;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
+import static com.firstidea.garnet.web.brokerx.service.bean.BrokerxUserServiceBean.logger;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.GarnetStringUtils;
@@ -29,6 +31,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -501,5 +504,49 @@ public class LeadServiceBean implements LeadService {
         }
 
         return MessageDTO.getFailureDTO();
+    }
+
+    @Override
+    public MessageDTO uploadDocument(LeadDocument leadDocument, Map<String, FileItem> fileItemsMap) {
+        try {
+            String fileNames = "";
+            for (String fileName : fileItemsMap.keySet()) {
+                String uploadPath[] = FileUploadHelper.getPathToUploadFile(fileName, FileUploadHelper.FILTE_TYPE_LEAD_DOCUMENTS);
+                if (uploadPath != null) {
+                    boolean isFileUploaded = FileUploadHelper.UploadImage(fileItemsMap.get(fileName), uploadPath[0]);
+                    if (isFileUploaded) {
+                        String regex;
+                        if (FileUploadHelper.fileSeparator.equals("\\")) {
+                            regex = "\\\\";
+                        } else {
+                            regex = "/";
+                        }
+                        String path[] = uploadPath[0].split(regex);
+                        String uploadedFileName = path[path.length - 1];
+                        if (uploadedFileName.toLowerCase().endsWith(".jpg") || uploadedFileName.toLowerCase().endsWith(".jpeg")
+                                || uploadedFileName.toLowerCase().endsWith(".png")) {
+                            String thumbNailImagePath = uploadPath[0].substring(0, uploadPath[0].lastIndexOf(FileUploadHelper.fileSeparator));
+                            FileUploadHelper.createThumbNailForUploadedImage(uploadPath[0], uploadedFileName, thumbNailImagePath, true, null, null);
+                        }
+                    }
+                    fileNames += uploadPath[1];
+                }
+
+            }
+            if (leadDocument == null) {
+                return MessageDTO.getFailureDTO();
+            }
+            if (StringUtils.isNotBlank(fileNames)) {
+                leadDocument.setDocumentURL(fileNames);
+            }
+            em.persist(leadDocument);
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(leadDocument);
+
+            return messageDTO;
+        } catch (Exception e) {
+            logger.error(LeadServiceBean.class + " uploadDocument() : ERROR " + e.toString());
+            return MessageDTO.getFailureDTO();
+        }
     }
 }

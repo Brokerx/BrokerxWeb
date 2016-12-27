@@ -8,12 +8,15 @@ package com.firstidea.garnet.web.brokerx.ctrl.impl;
 import com.firstidea.garnet.web.brokerx.auth.Authentication;
 import com.firstidea.garnet.web.brokerx.ctrl.LeadCtrl;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.LeadDocument;
 import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import com.firstidea.garnet.web.brokerx.service.JndiService;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
 import java.util.Date;
+import java.util.Map;
+import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -89,5 +92,12 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
     @Override
     public String getLeadDocuments(Integer leadID){
         return JsonConverter.createJson(leadService.getLeadDocuments(leadID));
+    }
+
+    @Override
+   public String uploadDocument(String fileJSON, Map<String, FileItem> fileItemsMap){
+        LeadDocument leadDocument = (LeadDocument) JsonConverter.fromJson(fileJSON, LeadDocument.class);
+        return JsonConverter.createJson(leadService.uploadDocument(leadDocument, fileItemsMap));
+        
     }
 }

@@ -7,12 +7,20 @@ package com.firstidea.garnet.web.brokerx.rest;
 
 import com.firstidea.garnet.web.brokerx.ctrl.CtrlCollection;
 import com.firstidea.garnet.web.brokerx.ctrl.LeadCtrl;
+import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
+import com.firstidea.garnet.web.brokerx.util.JsonConverter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Produces;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 /**
  * REST Web Service
@@ -141,5 +149,55 @@ public class LeadResource extends AppResource {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
         return leadCtrl.dealDone(leadID);
+    }
+    
+    
+    @POST
+    @Produces("application/json")
+    @Path("/uploadDocument") 
+    public String uploadDocument() {
+        try {
+            
+            // Create a factory for disk-based file items
+            DiskFileItemFactory factory = new DiskFileItemFactory();
+
+            // Set factory constraints
+            factory.setSizeThreshold(10000);
+
+            // Create a new file upload handler
+            ServletFileUpload upload = new ServletFileUpload(factory);
+
+            List<FileItem> multiparts = upload.parseRequest(request);
+//            FileItem filePart = null;
+//            String fileType = null, title = null;
+            Map<String, FileItem> fileItemsMap = new HashMap<String, FileItem>();
+            Map<String, String> uploadForm = new HashMap<String, String>();
+
+            for (FileItem item : multiparts) {
+                if (!item.isFormField()) {
+                    //your operations on file
+//                    String fieldName = item.getFieldName();
+                    String fileName = item.getName();
+                    if (fileName != null && fileName.length() > 0) {
+//                        String contentType = item.getContentType();
+//                        boolean isInMemory = item.isInMemory();
+//                        long sizeInBytes = item.getSize();
+                        fileItemsMap.put(fileName, item);
+                    }
+                } else {
+                    String name = item.getFieldName();
+                    String value = item.getString();
+                    uploadForm.put(name, value);
+                }
+            }
+            String userJSON = uploadForm.get("DataJSON");
+            LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+            leadCtrl.setUserRequest(request);
+            String responseString = leadCtrl.uploadDocument(userJSON, fileItemsMap);
+            return responseString;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return JsonConverter.createJson(MessageDTO.getFailureDTO());
     }
 }
