@@ -539,6 +539,7 @@ public class LeadServiceBean implements LeadService {
             if (StringUtils.isNotBlank(fileNames)) {
                 leadDocument.setDocumentURL(fileNames);
             }
+            leadDocument.setUploadedDttm(ApptDateUtils.getCurrentDateAndTime());
             em.persist(leadDocument);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(leadDocument);

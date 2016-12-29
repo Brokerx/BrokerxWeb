@@ -47,7 +47,7 @@ public class LeadDocument implements Serializable {
     private Date uploadedDttm;
     @Column(name = "IsDeleted")
     private Boolean isDeleted;
-    @Size(max = 10)
+    @Size(max = 50)
     @Column(name = "type")
     private String type;
 
