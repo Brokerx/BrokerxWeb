@@ -280,7 +280,8 @@ public class LeadServiceBean implements LeadService {
             Map<String, Object> queryParams = new HashMap<String, Object>();
 
             if (userID != null) {
-                queryString.append(" AND l.createdUserID= :createdUserID");
+                queryString.append(" AND (l.createdUserID= :createdUserID"
+                        + " OR l.brokerID= :createdUserID) ");
                 queryParams.put("createdUserID", userID);
             }
             if (type != null) {
@@ -303,13 +304,27 @@ public class LeadServiceBean implements LeadService {
             }
             List<Lead> leads = query.getResultList();
             if (leads != null && !leads.isEmpty()) {
+                List<Integer> userIDs = new ArrayList<Integer>();
                 for (Lead lead : leads) {
-                    User broker = em.find(User.class, lead.getBrokerID());
-                    lead.setBroker(broker);
+                    userIDs.add(lead.getCreatedUserID());
+                    userIDs.add(lead.getBrokerID());
                     if (lead.getAssignedToUserID() != null) {
-                        User assignedTouser = em.find(User.class, lead.getAssignedToUserID());
-                        lead.setAssignedToUser(assignedTouser);
+                        userIDs.add(lead.getAssignedToUserID());
                     }
+                }
+                Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                        .setParameter("userIDs", userIDs);
+                List<User> users = userQuery.getResultList();
+                Map<Integer, User> usersMap = new HashMap();
+                for (User user : users) {
+                    usersMap.put(user.getUserID(), user);
+                }
+                for (Lead lead : leads) {
+                    lead.setBroker(usersMap.get(lead.getBrokerID()));
+                    if (lead.getAssignedToUserID() != null) {
+                        lead.setAssignedToUser(usersMap.get(lead.getAssignedToUserID()));
+                    }
+                    lead.setCreatedUser(usersMap.get(lead.getCreatedUserID()));
                 }
             }
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
