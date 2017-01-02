@@ -50,5 +50,16 @@ public abstract class JndiService {
         return service;
     }
 
+    public final static AnalysisService getAnalysisService() {
+        AnalysisService service = null;
+        try {
+            Context context = getInitialContext();
+            service = (AnalysisService) context.lookup("java:global/Brokerx/AnalysisServiceBean");
+        } catch (NamingException ex) {
+            Logger.getLogger(AnalysisService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return service;
+    }
+
 
 }

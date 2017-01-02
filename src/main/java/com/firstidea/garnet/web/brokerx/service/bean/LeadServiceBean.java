@@ -15,7 +15,6 @@ import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.enums.LeadCurrentStatus;
 import com.firstidea.garnet.web.brokerx.filehandling.FileUploadHelper;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
-import static com.firstidea.garnet.web.brokerx.service.bean.BrokerxUserServiceBean.logger;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.GarnetStringUtils;
@@ -274,7 +273,7 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
-    public MessageDTO getLeads(Integer userID, String type, String status, Date startDate, Date endDate) {
+    public MessageDTO getLeads(Integer userID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate){
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
             Map<String, Object> queryParams = new HashMap<String, Object>();
@@ -292,6 +291,15 @@ public class LeadServiceBean implements LeadService {
                 String statusColumnName = type.equals("B") ? "buyerStatus" : "sellerStatus";
                 queryString.append(" AND l." + statusColumnName + "= :currentStatus");
                 queryParams.put("currentStatus", status);
+            }
+            if (item != null) {
+                queryString.append(" AND l.itemName=:itemName");
+                queryParams.put("itemName", item);
+            }
+            if (brokerIDString != null) {
+                Integer brokerID = Integer.parseInt(brokerIDString);
+                queryString.append(" AND l.brokerID=:brokerID");
+                queryParams.put("brokerID", brokerID);
             }
             if (startDate != null && endDate != null) {
                 queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");

@@ -65,12 +65,13 @@ public class LeadResource extends AppResource {
     public String getLeads(@FormParam("userID") Integer userID,
             @FormParam("type") String type,
             @FormParam("status") String status,
+            @FormParam("item") String item,
+            @FormParam("brokerID") String brokerID,
             @FormParam("startDate") String startDate,
             @FormParam("endDate") String endDate) {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
-
-        String response = leadCtrl.getLeads(userID, type, status, startDate, endDate);
+        String response = leadCtrl.getLeads(userID, type, status, item, brokerID, startDate, endDate);
         return response;
     }
     

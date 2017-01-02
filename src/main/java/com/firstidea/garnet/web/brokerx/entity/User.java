@@ -6,6 +6,7 @@
 package com.firstidea.garnet.web.brokerx.entity;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import javax.persistence.Basic;
 import javax.persistence.Column;
@@ -92,6 +93,10 @@ public class User implements Serializable {
     private boolean isMyRequest;
     @Transient
     private Integer userConnectionID;
+    @Transient
+    private Integer leadCount;
+    @Transient
+    private BigDecimal leadAmount;
     
     public User() {
     }
@@ -255,6 +260,22 @@ public class User implements Serializable {
 
     public void setUserConnectionID(Integer userConnectionID) {
         this.userConnectionID = userConnectionID;
+    }
+
+    public Integer getLeadCount() {
+        return leadCount;
+    }
+
+    public void setLeadCount(Integer leadCount) {
+        this.leadCount = leadCount;
+    }
+
+    public BigDecimal getLeadAmount() {
+        return leadAmount;
+    }
+
+    public void setLeadAmount(BigDecimal leadAmount) {
+        this.leadAmount = leadAmount;
     }
 
     public boolean isIsMyRequest() {

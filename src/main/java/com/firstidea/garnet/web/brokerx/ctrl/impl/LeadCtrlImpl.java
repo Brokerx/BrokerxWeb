@@ -7,6 +7,7 @@ package com.firstidea.garnet.web.brokerx.ctrl.impl;
 
 import com.firstidea.garnet.web.brokerx.auth.Authentication;
 import com.firstidea.garnet.web.brokerx.ctrl.LeadCtrl;
+import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
 import com.firstidea.garnet.web.brokerx.entity.LeadDocument;
 import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
@@ -34,13 +35,13 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
     }
 
     @Override
-    public String getLeads(Integer userID, String type, String status, String startDate, String endDate) {
+    public String getLeads(Integer userID, String type, String status, String item, String brokerID,String startDate, String endDate) {
         Date start = null, end = null;
         if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
             start = ApptDateUtils.getFormatedDate(startDate);
             end = ApptDateUtils.getFormatedDate(endDate);
         }
-        return JsonConverter.createJson(leadService.getLeads(userID, type, status, start, end));
+        return JsonConverter.createJson(leadService.getLeads(userID, type, status, item, brokerID, start, end));
     }
 
     @Override
