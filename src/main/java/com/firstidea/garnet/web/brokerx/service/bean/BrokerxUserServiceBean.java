@@ -56,7 +56,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
     public MessageDTO registerUser(User user, Map<String, FileItem> fileItemsMap) {
         try {
             // TODO check for existing user by email and mobile and send error accordingly
-            
+
             String fileNames = "";
             for (String fileName : fileItemsMap.keySet()) {
                 String uploadPath[] = FileUploadHelper.getPathToUploadFile(fileName, FileUploadHelper.FILTE_TYPE_USER_PROFILE_PHOTO);
@@ -88,9 +88,17 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
                 user.setImageURL(fileNames);
             }
             if (user.getUserID() != null) {
+                User prevUser = em.find(User.class, user.getUserID());
+                user.setPassword(prevUser.getPassword());
+                if (StringUtils.isBlank(fileNames)) {
+                    user.setImageURL(prevUser.getImageURL());
+                }
+                if (StringUtils.isBlank(prevUser.getGcmKey())) {
+                    user.setGcmKey(prevUser.getGcmKey());
+                }
                 em.merge(user);
             } else {
-                
+
                 em.persist(user);
             }
 //            updateUserOTPTable(user.getUserID(), user.getMobile());
@@ -187,9 +195,9 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
                 messageDTO = MessageDTO.getSuccessDTO();
                 messageDTO.setData(userConnection);
                 User fromUser = em.find(User.class, userConnection.getFromUserID());
-                if(StringUtils.isNotBlank(fromUser.getGcmKey())) {
+                if (StringUtils.isNotBlank(fromUser.getGcmKey())) {
                     User toUser = em.find(User.class, userConnection.getToUserID());
-                    String type = status.equals(ConnectionStatus.ACCEPTED) ? GCMUtils.TYPE_CONNECTION_REQUEST_ACCEPTED: GCMUtils.TYPE_CONNECTION_REQUEST_REJECTED;
+                    String type = status.equals(ConnectionStatus.ACCEPTED) ? GCMUtils.TYPE_CONNECTION_REQUEST_ACCEPTED : GCMUtils.TYPE_CONNECTION_REQUEST_REJECTED;
                     GCMUtils.sendNotification(fromUser.getGcmKey(), toUser.getFullName(), type);
                 }
             } else {

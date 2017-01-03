@@ -168,7 +168,7 @@ public class LeadServiceBean implements LeadService {
             leadStatusHistory.setLeadID(childLead.getLeadID());
             leadStatusHistory.setCurrentStatus(1);
             leadStatusHistory.setDealDoneDateTime(ApptDateUtils.getCurrentDateAndTime());
-            em.persist(leadStatusHistory);
+            em.merge(leadStatusHistory);
 
             if (parentLead.getType().equals("B")) {
                 childLead.setBuyerBrokerage(parentLead.getBrokerageAmt());
@@ -359,10 +359,16 @@ public class LeadServiceBean implements LeadService {
                 queryString.append(" AND l.type= :type");
                 queryParams.put("type", type);
             }
-            if (status != null) {
-                queryString.append(" AND l.currentStatus= :currentStatus");
-                queryParams.put("currentStatus", status);
-            }
+//            if (status != null) {
+//                queryString.append(" AND l.currentStatus= :currentStatus");
+//                queryParams.put("currentStatus", status);ghjgh
+//            }
+            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
+            List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
+            queryString.append(" AND l.brokerStatus IN (:includeStatus) "
+                    + " AND l.assignedToUserID Is Null");
+            queryParams.put("includeStatus", includeStatusList);
+            
             if (startDate != null && endDate != null) {
                 queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");
                 queryParams.put("startDate", startDate);
