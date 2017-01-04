@@ -67,4 +67,9 @@ public interface QueryConstants {
             + " %s "
             + " and Type=:leadType1 group by BrokerID order by TotalAmount desc,NoOfLeads desc  limit 11)";
 
+    String GET_USER_COUNT_BY_MOBILE = "SELECT count(*) From User "
+            + " WHERE Mobile=:mobile";
+    
+    String GET_USER_COUNT_BY_EMAIL = "SELECT count(*) FROM User  "
+            + " WHERE Email=:email";
 }

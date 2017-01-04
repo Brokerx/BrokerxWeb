@@ -17,6 +17,7 @@ import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.GarnetStringUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -55,8 +56,26 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
     @Override
     public MessageDTO registerUser(User user, Map<String, FileItem> fileItemsMap) {
         try {
-            // TODO check for existing user by email and mobile and send error accordingly
+            if (user.getUserID() == null) {
+                // TODO check for existing user by email and mobile and send error accordingly
+                Query mobileCountQuery = em.createQuery(QueryConstants.GET_USER_COUNT_BY_MOBILE)
+                        .setParameter("mobile", user.getMobile());
+                Long userCount = (Long) mobileCountQuery.getSingleResult();
+                if (userCount > 0) {
+                    MessageDTO messageDTO = MessageDTO.getFailureDTO();
+                    messageDTO.setMessageText("Mobile number already exist");
+                    return messageDTO;
+                }
 
+                Query emailCountQuery = em.createQuery(QueryConstants.GET_USER_COUNT_BY_EMAIL)
+                        .setParameter("email", user.getEmail());
+                Long emailUserCount = (Long) emailCountQuery.getSingleResult();
+                if (emailUserCount > 0) {
+                    MessageDTO messageDTO = MessageDTO.getFailureDTO();
+                    messageDTO.setMessageText("Email ID already exist");
+                    return messageDTO;
+                }
+            }
             String fileNames = "";
             for (String fileName : fileItemsMap.keySet()) {
                 String uploadPath[] = FileUploadHelper.getPathToUploadFile(fileName, FileUploadHelper.FILTE_TYPE_USER_PROFILE_PHOTO);
@@ -113,7 +132,9 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
             return messageDTO;
         } catch (Exception e) {
             logger.error(BrokerxUserServiceBean.class + " registerUser() : ERROR " + e.toString());
-            return MessageDTO.getFailureDTO();
+            MessageDTO messageDTO = MessageDTO.getFailureDTO();
+            messageDTO.setMessageText("Server Error, Please contact Administrator");
+            return messageDTO;
         }
     }
 
