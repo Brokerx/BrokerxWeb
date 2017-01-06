@@ -74,6 +74,22 @@ public class LeadServiceBean implements LeadService {
             }
             LeadHistory leadHistory = mapLeadToLeadHistory(fieldsAltered, lead);
             em.persist(leadHistory);
+            List<Integer> userIDs = new ArrayList<Integer>();
+            userIDs.add(lead.getCreatedUserID());
+            userIDs.add(lead.getBrokerID());
+            if(lead.getAssignedToUserID() != null) {
+                userIDs.add(lead.getAssignedToUserID());
+            }
+            Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                    .setParameter("userIDs", userIDs);
+            List<User> users = userQuery.getResultList();
+            Map<Integer, User> usersMap = new HashMap();
+            for (User user : users) {
+                usersMap.put(user.getUserID(), user);
+            }
+            lead.setBroker(usersMap.get(lead.getBrokerID()));
+            lead.setAssignedToUser(usersMap.get(lead.getAssignedToUserID()));
+            lead.setCreatedUser(usersMap.get(lead.getCreatedUserID()));
 
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(lead);
@@ -273,7 +289,7 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
-    public MessageDTO getLeads(Integer userID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate){
+    public MessageDTO getLeads(Integer userID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate) {
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
             Map<String, Object> queryParams = new HashMap<String, Object>();
@@ -368,7 +384,7 @@ public class LeadServiceBean implements LeadService {
             queryString.append(" AND l.brokerStatus IN (:includeStatus) "
                     + " AND l.assignedToUserID Is Null");
             queryParams.put("includeStatus", includeStatusList);
-            
+
             if (startDate != null && endDate != null) {
                 queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");
                 queryParams.put("startDate", startDate);
@@ -505,7 +521,7 @@ public class LeadServiceBean implements LeadService {
         Map<String, Object> prevLeadMap = m.convertValue(prevLead, Map.class);
         Map<String, Object> nweLeadMap = m.convertValue(lead, Map.class);
         for (String key : prevLeadMap.keySet()) {
-            if (key.contains("Status") || key.contains("lastUpdDateTime") || key.contains("createdUser")) {
+            if (key.contains("Status") || key.contains("lastUpd") || key.contains("createdUser")) {
                 continue;
             }
             if (!Objects.equals(prevLeadMap.get(key), nweLeadMap.get(key))) {
