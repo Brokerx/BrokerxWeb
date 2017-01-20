@@ -72,4 +72,10 @@ public interface QueryConstants {
     
     String GET_USER_COUNT_BY_EMAIL = "SELECT count(*) FROM User  "
             + " WHERE Email=:email";
+    
+    String GET_USER_CHATS = "SELECT uc FROM Chat uc "
+            + " WHERE uc.fromUserID IN (:fromUserID) "
+            + " AND uc.toUserID IN (:toUserID) "
+            + " AND uc.leadID = :leadID"
+            + " ORDER BY uc.createdDttm DESC";
 }

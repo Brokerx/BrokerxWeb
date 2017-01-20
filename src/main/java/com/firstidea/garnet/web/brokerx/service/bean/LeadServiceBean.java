@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @Stateless
 public class LeadServiceBean implements LeadService {
 
-    static final Logger logger = LoggerFactory.getLogger(BrokerxUserServiceBean.class);
+    static final Logger logger = LoggerFactory.getLogger(LeadServiceBean.class);
 
     @PersistenceContext
     EntityManager em;

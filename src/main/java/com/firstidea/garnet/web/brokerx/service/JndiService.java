@@ -61,5 +61,25 @@ public abstract class JndiService {
         return service;
     }
 
+     public final static FileService getFileService() {
+         FileService service = null;
+        try {
+            Context context = getInitialContext();
+            service = (FileService) context.lookup("java:global/Brokerx/FileServiceBean");
+        } catch (NamingException ex) {
+            Logger.getLogger(FileService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return service;
+     }
 
+     public final static ChatService getChatService() {
+         ChatService service = null;
+        try {
+            Context context = getInitialContext();
+            service = (ChatService) context.lookup("java:global/Brokerx/ChatServiceBean");
+        } catch (NamingException ex) {
+            Logger.getLogger(ChatService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return service;
+     }
 }
