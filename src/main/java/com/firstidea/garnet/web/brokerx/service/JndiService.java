@@ -61,13 +61,13 @@ public abstract class JndiService {
         return service;
     }
 
-     public final static FileService getFileService() {
-         FileService service = null;
+     public final static BrokerxFileService getFileService() {
+         BrokerxFileService service = null;
         try {
             Context context = getInitialContext();
-            service = (FileService) context.lookup("java:global/Brokerx/FileServiceBean");
+            service = (BrokerxFileService) context.lookup("java:global/Brokerx/BrokerxFileServiceBean");
         } catch (NamingException ex) {
-            Logger.getLogger(FileService.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(BrokerxFileService.class.getName()).log(Level.SEVERE, null, ex);
         }
         return service;
      }

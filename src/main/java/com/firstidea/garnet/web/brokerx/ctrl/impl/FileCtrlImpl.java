@@ -10,7 +10,7 @@ import com.firstidea.garnet.web.brokerx.auth.Authentication;
 import com.firstidea.garnet.web.brokerx.constants.MsgConstants;
 import com.firstidea.garnet.web.brokerx.ctrl.FileCtrl;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
-import com.firstidea.garnet.web.brokerx.service.FileService;
+import com.firstidea.garnet.web.brokerx.service.BrokerxFileService;
 import com.firstidea.garnet.web.brokerx.service.JndiService;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
 import java.util.Map;
@@ -26,7 +26,7 @@ public class FileCtrlImpl extends Authentication implements FileCtrl{
     public String uploadFile(String type, String userID, Map<String, FileItem> fileItemsMap) {
         MessageDTO messageDTO = authenticationCheck(getUserRequest());
         if(messageDTO.getMessageID().equals(MsgConstants.VALID_URL_SUCCESS_ID)) {
-            FileService fileService = JndiService.getFileService();
+            BrokerxFileService fileService = JndiService.getFileService();
             messageDTO = fileService.uploadFile(type, userID, fileItemsMap);
         }
         

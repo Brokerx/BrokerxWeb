@@ -15,6 +15,6 @@ import org.apache.commons.fileupload.FileItem;
  * @author Govind
  */
 @Local
-public interface FileService {
+public interface BrokerxFileService {
     public MessageDTO uploadFile(String type, String userID, Map<String, FileItem> fileItemsMap);
 }

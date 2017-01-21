@@ -7,7 +7,7 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.filehandling.FileUploadHelper;
-import com.firstidea.garnet.web.brokerx.service.FileService;
+import com.firstidea.garnet.web.brokerx.service.BrokerxFileService;
 import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
@@ -21,9 +21,9 @@ import org.slf4j.LoggerFactory;
  * @author Govind
  */
 @Stateless
-public class FileServiceBean implements FileService{
+public class BrokerxFileServiceBean implements BrokerxFileService{
     
-    static final Logger logger = LoggerFactory.getLogger(FileServiceBean.class);
+    static final Logger logger = LoggerFactory.getLogger(BrokerxFileServiceBean.class);
 
     @PersistenceContext
     EntityManager em;
