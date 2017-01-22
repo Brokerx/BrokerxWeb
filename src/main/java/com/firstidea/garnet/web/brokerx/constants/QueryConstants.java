@@ -78,4 +78,7 @@ public interface QueryConstants {
             + " AND uc.toUserID IN (:toUserID) "
             + " AND uc.leadID = :leadID"
             + " ORDER BY uc.createdDttm DESC";
+    
+    String GET_NOTIFICATIONS_BY_USERID = "SELECT n from Notification n WHERE n.toUserID=:userID"
+            + " ORDER BY n.createdDttm DESC";
 }

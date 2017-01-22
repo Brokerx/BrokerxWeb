@@ -62,7 +62,8 @@ public class LeadResource extends AppResource {
     @POST
     @Path("/getLeads")
     @Produces("application/json")
-    public String getLeads(@FormParam("userID") Integer userID,
+    public String getLeads(@FormParam("leadID") Integer leadID,
+            @FormParam("userID") Integer userID,
             @FormParam("type") String type,
             @FormParam("status") String status,
             @FormParam("item") String item,
@@ -71,8 +72,8 @@ public class LeadResource extends AppResource {
             @FormParam("endDate") String endDate) {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
-        String response = leadCtrl.getLeads(userID, type, status, item, brokerID, startDate, endDate);
-        return response;
+        String responseString = leadCtrl.getLeads(leadID, userID, type, status, item, brokerID, startDate, endDate);
+        return responseString;
     }
     
 
@@ -83,8 +84,8 @@ public class LeadResource extends AppResource {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
 
-        String response = leadCtrl.getLeadDocuments(leadID);
-        return response;
+        String responseString = leadCtrl.getLeadDocuments(leadID);
+        return responseString;
     }
     
     @POST
@@ -94,8 +95,8 @@ public class LeadResource extends AppResource {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
 
-        String response = leadCtrl.getLeadStatusHistory(leadID);
-        return response;
+        String responseString = leadCtrl.getLeadStatusHistory(leadID);
+        return responseString;
     }
 
     @POST
@@ -109,8 +110,8 @@ public class LeadResource extends AppResource {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
 
-        String response = leadCtrl.getLeadsByBroker(brokerID, type, status, startDate, endDate);
-        return response;
+        String responseString = leadCtrl.getLeadsByBroker(brokerID, type, status, startDate, endDate);
+        return responseString;
     }
 
     @POST

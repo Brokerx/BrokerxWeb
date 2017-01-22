@@ -25,6 +25,7 @@ public class GCMUtils {
     public static String TYPE_NEW_LEAD_ADDED = "NewLeadAdded";
     public static String TYPE_LEAD_REVERTED = "LeadReverted";
     public static String TYPE_USER_COMMUNICATION = "UserCommunication";
+    public static String TYPE_NEW_NOTIFICATION = "NewNotification";
     
     public static void sendNotification(String regID, String data, String type){
         try {

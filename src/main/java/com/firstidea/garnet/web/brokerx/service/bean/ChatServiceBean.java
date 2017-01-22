@@ -8,13 +8,17 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Chat;
+import com.firstidea.garnet.web.brokerx.entity.Lead;
+import com.firstidea.garnet.web.brokerx.entity.Notification;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.service.ChatService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -35,8 +39,8 @@ public class ChatServiceBean implements ChatService {
     EntityManager em;
 
     @Override
-    public MessageDTO sendMsg(Integer fromUserID, String fromUserName, Integer toUserID, 
-            Integer leadID, String type, String message, String fromUserType, String itemName){
+    public MessageDTO sendMsg(Integer fromUserID, String fromUserName, Integer toUserID,
+            Integer leadID, String type, String message, String fromUserType, String itemName) {
         MessageDTO messageDTO = null;
         try {
             Chat chat = new Chat();
@@ -90,4 +94,34 @@ public class ChatServiceBean implements ChatService {
         return messageDTO;
     }
 
+    @Override
+    public MessageDTO getNotifications(Integer userID) {
+        MessageDTO messageDTO = null;
+        try {
+            Query query = em.createQuery(QueryConstants.GET_NOTIFICATIONS_BY_USERID)
+                    .setParameter("userID", userID);
+            List<Notification> notifications = query.getResultList();
+            List<Integer> userIDs = new ArrayList<Integer>();
+            for (Notification notification : notifications) {
+                userIDs.add(notification.getFromUserID());
+            }
+            Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                    .setParameter("userIDs", userIDs);
+            List<User> users = userQuery.getResultList();
+            Map<Integer, User> usersMap = new HashMap();
+            for (User user : users) {
+                usersMap.put(user.getUserID(), user);
+            }
+            for (Notification notification : notifications) {
+                notification.setFromUser(usersMap.get(notification.getFromUserID()));
+            }
+            messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(notifications);
+        } catch (Exception e) {
+            logger.error(" ERROR : getNotifications() Start : userID " + userID);
+            messageDTO = MessageDTO.getFailureDTO();
+        }
+
+        return messageDTO;
+    }
 }

@@ -11,8 +11,10 @@ import com.firstidea.garnet.web.brokerx.entity.Lead;
 import com.firstidea.garnet.web.brokerx.entity.LeadDocument;
 import com.firstidea.garnet.web.brokerx.entity.LeadHistory;
 import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
+import com.firstidea.garnet.web.brokerx.entity.Notification;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.enums.LeadCurrentStatus;
+import com.firstidea.garnet.web.brokerx.enums.NotificationType;
 import com.firstidea.garnet.web.brokerx.filehandling.FileUploadHelper;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
@@ -77,7 +79,7 @@ public class LeadServiceBean implements LeadService {
             List<Integer> userIDs = new ArrayList<Integer>();
             userIDs.add(lead.getCreatedUserID());
             userIDs.add(lead.getBrokerID());
-            if(lead.getAssignedToUserID() != null) {
+            if (lead.getAssignedToUserID() != null) {
                 userIDs.add(lead.getAssignedToUserID());
             }
             Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
@@ -93,7 +95,8 @@ public class LeadServiceBean implements LeadService {
 
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(lead);
-            sendGCMNotification(prevLead, lead);
+            //sendGCMNotification(prevLead, lead);
+            sendLeadHistoryNotification(leadHistory, lead);
             return messageDTO;
         } catch (Exception e) {
             logger.info(LeadServiceBean.class + " saveLead() : ERROR: " + e.toString());
@@ -102,23 +105,78 @@ public class LeadServiceBean implements LeadService {
         return MessageDTO.getFailureDTO();
     }
 
+    
+    private void sendLeadHistoryNotification(LeadHistory leadHistory, Lead lead) {
+        Notification notification = new Notification();
+        notification.setFromUserID(lead.getLastUpdUserID());
+        String createdUsername = "";
+        String gcmKey = "";
+        if (leadHistory.getCreatedUserID() == lead.getCreatedUserID()) {
+            notification.setToUserID(lead.getBrokerID());
+            gcmKey = lead.getBroker().getGcmKey();
+            createdUsername = lead.getCreatedUser().getFullName();
+        } else {
+            notification.setToUserID(lead.getCreatedUserID());
+            createdUsername = lead.getBroker().getFullName();
+            gcmKey = lead.getCreatedUser().getGcmKey();
+        }
+        notification.setLeadID(lead.getLeadID());
+        notification.setItemName(lead.getItemName());
+        if (lead.getIsMoveToPending() != null && !lead.getIsMoveToPending()) {
+            notification.setType(NotificationType.MOVED_TO_PENDING_LEAD.getNotificationType());
+            notification.setMessage("Moved to pending deals");
+        } else if (leadHistory.getFieldsAltered().equals("Changed Status")) {
+            notification.setMessage(leadHistory.getFieldsAltered());
+            notification.setType(NotificationType.LEAD_STATUS_CHANGED.getNotificationType());
+        } else if (leadHistory.getFieldsAltered().equals("Lead Created")) {
+            notification.setMessage("Lead Created");
+            notification.setType(NotificationType.LEAD_CREATED.getNotificationType());
+        } else {
+            notification.setMessage("Suggested Some Changes");
+            notification.setType(NotificationType.LEAD_REVERTED.getNotificationType());
+        }
+        notification.setIsRead(false);
+        notification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        em.persist(notification);
+        
+        sendPushNotification(gcmKey, createdUsername);
+
+    }
+
     private void sendGCMNotification(Lead prevLead, Lead lead) {
         User broker = em.find(User.class, lead.getBrokerID());
         User createdUser = em.find(User.class, lead.getCreatedUserID());
         String gcmKey = "", userName = "";
-
+        Notification notification = new Notification();
+        notification.setLeadID(lead.getLeadID());
         String type = GCMUtils.TYPE_NEW_LEAD_ADDED;
-        if (prevLead != null) {
+        notification.setType(NotificationType.LEAD_CREATED.getNotificationType());
+        notification.setMessage("Lead Created");
+        if (lead.getIsMoveToPending() != null && !lead.getIsMoveToPending()) {
+            type = GCMUtils.TYPE_NEW_NOTIFICATION;
+            notification.setType(NotificationType.MOVED_TO_PENDING_LEAD.getNotificationType());
+            notification.setMessage("Moved to pending deals");
+        } else if (prevLead != null) {
             type = GCMUtils.TYPE_LEAD_REVERTED;
+            notification.setType(NotificationType.LEAD_REVERTED.getNotificationType());
+            notification.setMessage("Suggested Some Changes");
         }
-        if (lead.getLastUpdUserID().equals(createdUser)) {
+        notification.setItemName(lead.getItemName());
+        notification.setIsRead(false);
+        notification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        if (lead.getLastUpdUserID().equals(createdUser.getUserID())) {
             gcmKey = broker.getGcmKey();
             userName = createdUser.getFullName();
+            notification.setFromUserID(createdUser.getUserID());
+            notification.setToUserID(broker.getUserID());
         } else {
             gcmKey = createdUser.getGcmKey();
             userName = broker.getFullName();
+            notification.setFromUserID(broker.getUserID());
+            notification.setToUserID(createdUser.getUserID());
         }
 
+        em.persist(notification);
         if (StringUtils.isNotBlank(gcmKey)) {
             GCMUtils.sendNotification(gcmKey, userName, type);
         }
@@ -194,11 +252,11 @@ public class LeadServiceBean implements LeadService {
                 childLead.setSellerBrokerage(parentLead.getBrokerageAmt());
             }
 
-            //TODO Send notification to seller and buyer
             em.merge(parentLead);
             childLead = em.merge(childLead);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(childLead);
+            sendDealDoneNotification(childLead);
             return messageDTO;
         } catch (Exception e) {
             logger.info(LeadServiceBean.class + " dealDone() : ERROR: " + e.toString());
@@ -213,12 +271,64 @@ public class LeadServiceBean implements LeadService {
             em.merge(leadStatusHistory);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(leadStatusHistory);
+            sendLeadStatusHisoryNotification(leadStatusHistory.getLeadID(), false);
             return messageDTO;
         } catch (Exception e) {
             logger.info(LeadServiceBean.class + " saveLeadStatusHistory() : ERROR: " + e.toString());
         }
 
         return MessageDTO.getFailureDTO();
+    }
+
+    private void sendLeadStatusHisoryNotification(Integer leadID, boolean isDocumentUploaded) {
+        Lead lead = em.find(Lead.class, leadID);
+        List<Integer> userIDs = new ArrayList<Integer>();
+        Integer buyerID,sellerID;
+        if(lead.getType().equals("B")){
+            buyerID = lead.getCreatedUserID();
+            sellerID = lead.getAssignedToUserID();
+        } else {
+            buyerID = lead.getAssignedToUserID();
+            sellerID = lead.getCreatedUserID();
+        }
+        userIDs.add(buyerID);
+        userIDs.add(sellerID);
+        userIDs.add(lead.getBrokerID());
+        Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                .setParameter("userIDs", userIDs);
+        List<User> users = userQuery.getResultList();
+        Map<Integer, User> usersMap = new HashMap();
+        for (User user : users) {
+            usersMap.put(user.getUserID(), user);
+        }
+        String message = isDocumentUploaded ? "Document Uploaded" : "Lead Stage Updated";
+        String type = isDocumentUploaded ? NotificationType.ANALYSIS_DOCUMENT_UPLOADED.getNotificationType() : NotificationType.ANALYSIS_STATUS_CHANGED.getNotificationType();
+        Notification buyerNotification = new Notification();
+        buyerNotification.setFromUserID(sellerID);
+        String createdUsername = usersMap.get(sellerID).getFullName();
+        buyerNotification.setToUserID(buyerID);
+        buyerNotification.setLeadID(lead.getLeadID());
+        buyerNotification.setItemName(lead.getItemName());
+        buyerNotification.setMessage(message);
+        buyerNotification.setType(type);
+        buyerNotification.setIsRead(false);
+        buyerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        em.persist(buyerNotification);
+
+        // For Broker
+        Notification brokerNotification = new Notification();
+        brokerNotification.setFromUserID(sellerID);
+        brokerNotification.setToUserID(lead.getBrokerID());
+        brokerNotification.setLeadID(lead.getLeadID());
+        brokerNotification.setItemName(lead.getItemName());
+        brokerNotification.setMessage(message);
+        brokerNotification.setType(type);
+        brokerNotification.setIsRead(false);
+        brokerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        em.persist(brokerNotification);
+
+        sendPushNotification(usersMap.get(buyerID).getGcmKey(), createdUsername);
+        sendPushNotification(usersMap.get(lead.getBrokerID()).getGcmKey(), createdUsername);
     }
 
     @Override
@@ -289,38 +399,43 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
-    public MessageDTO getLeads(Integer userID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate) {
+    public MessageDTO getLeads(Integer leadID, Integer userID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate) {
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
             Map<String, Object> queryParams = new HashMap<String, Object>();
 
-            if (userID != null) {
-                queryString.append(" AND (l.createdUserID= :createdUserID"
-                        + " OR l.brokerID= :createdUserID) ");
-                queryParams.put("createdUserID", userID);
-            }
-            if (type != null) {
-                queryString.append(" AND l.type= :type");
-                queryParams.put("type", type);
-            }
-            if (status != null) {
-                String statusColumnName = type.equals("B") ? "buyerStatus" : "sellerStatus";
-                queryString.append(" AND l." + statusColumnName + "= :currentStatus");
-                queryParams.put("currentStatus", status);
-            }
-            if (item != null) {
-                queryString.append(" AND l.itemName=:itemName");
-                queryParams.put("itemName", item);
-            }
-            if (brokerIDString != null) {
-                Integer brokerID = Integer.parseInt(brokerIDString);
-                queryString.append(" AND l.brokerID=:brokerID");
-                queryParams.put("brokerID", brokerID);
-            }
-            if (startDate != null && endDate != null) {
-                queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");
-                queryParams.put("startDate", startDate);
-                queryParams.put("endDate", endDate);
+            if (leadID != null) {
+                queryString.append(" AND l.leadID= :leadID");
+                queryParams.put("leadID", leadID);
+            } else {
+                if (userID != null) {
+                    queryString.append(" AND (l.createdUserID= :createdUserID"
+                            + " OR l.brokerID= :createdUserID) ");
+                    queryParams.put("createdUserID", userID);
+                }
+                if (type != null) {
+                    queryString.append(" AND l.type= :type");
+                    queryParams.put("type", type);
+                }
+                if (status != null && type != null) {
+                    String statusColumnName = type.equals("B") ? "buyerStatus" : "sellerStatus";
+                    queryString.append(" AND l.").append(statusColumnName).append("= :currentStatus");
+                    queryParams.put("currentStatus", status);
+                }
+                if (item != null) {
+                    queryString.append(" AND l.itemName=:itemName");
+                    queryParams.put("itemName", item);
+                }
+                if (brokerIDString != null) {
+                    Integer brokerID = Integer.parseInt(brokerIDString);
+                    queryString.append(" AND l.brokerID=:brokerID");
+                    queryParams.put("brokerID", brokerID);
+                }
+                if (startDate != null && endDate != null) {
+                    queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");
+                    queryParams.put("startDate", startDate);
+                    queryParams.put("endDate", endDate);
+                }
             }
             Query query = em.createQuery(queryString.toString());
             for (String param : queryParams.keySet()) {
@@ -390,6 +505,7 @@ public class LeadServiceBean implements LeadService {
                 queryParams.put("startDate", startDate);
                 queryParams.put("endDate", endDate);
             }
+            queryString.append(" ORDER BY l.lastUpdDateTime DESC");
             Query query = em.createQuery(queryString.toString());
             for (String param : queryParams.keySet()) {
                 query.setParameter(param, queryParams.get(param));
@@ -501,7 +617,7 @@ public class LeadServiceBean implements LeadService {
 //            String fieldsAltered = getFieldsAltered(prevLead, lead);
             leadHistory.setFieldsAltered(fieldsAltered);
         } else {
-            leadHistory.setFieldsAltered("created the Lead");
+            leadHistory.setFieldsAltered("Lead Created");
         }
         leadHistory.setFreeStoragePeriod(lead.getFreeStoragePeriod());
         leadHistory.setLocation(lead.getLocation());
@@ -520,8 +636,14 @@ public class LeadServiceBean implements LeadService {
         ObjectMapper m = new ObjectMapper();
         Map<String, Object> prevLeadMap = m.convertValue(prevLead, Map.class);
         Map<String, Object> nweLeadMap = m.convertValue(lead, Map.class);
+        boolean isStatusChanged = false;
         for (String key : prevLeadMap.keySet()) {
-            if (key.contains("Status") || key.contains("lastUpd") || key.contains("createdUser")) {
+            if (key.contains("Status")) {
+                isStatusChanged = true;
+                continue;
+            }
+            if (key.contains("lastUpd") || key.contains("createdUser")
+                    || key.toLowerCase().equals("broker")) {
                 continue;
             }
             if (!Objects.equals(prevLeadMap.get(key), nweLeadMap.get(key))) {
@@ -531,6 +653,9 @@ public class LeadServiceBean implements LeadService {
         String fields = alteredFileds.toString();
         if (fields.contains(",")) {
             fields = fields.substring(0, fields.lastIndexOf(",")).trim();
+        }
+        if (fields.trim().length() == 0 && isStatusChanged) {
+            fields = "Changed Status";
         }
         return fields;
     }
@@ -588,11 +713,57 @@ public class LeadServiceBean implements LeadService {
             em.persist(leadDocument);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(leadDocument);
-
+            sendLeadStatusHisoryNotification(leadDocument.getLeadID(), true);
             return messageDTO;
         } catch (Exception e) {
             logger.error(LeadServiceBean.class + " uploadDocument() : ERROR " + e.toString());
             return MessageDTO.getFailureDTO();
         }
+    }
+
+    private void sendPushNotification(String gcmKey, String userName) {
+        String type = GCMUtils.TYPE_NEW_NOTIFICATION;
+        if (StringUtils.isNotBlank(gcmKey)) {
+            GCMUtils.sendNotification(gcmKey, userName, type);
+        }
+    }
+
+    private void sendDealDoneNotification(Lead lead) {
+        List<Integer> userIDs = new ArrayList<Integer>();
+        userIDs.add(lead.getCreatedUserID());
+        userIDs.add(lead.getBrokerID());
+        userIDs.add(lead.getAssignedToUserID());
+        Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                .setParameter("userIDs", userIDs);
+        List<User> users = userQuery.getResultList();
+        Map<Integer, User> usersMap = new HashMap();
+        for (User user : users) {
+            usersMap.put(user.getUserID(), user);
+        }
+        Notification createdUserNotification = new Notification();
+        createdUserNotification.setFromUserID(lead.getBrokerID());
+        String createdUsername = usersMap.get(lead.getBrokerID()).getFullName();
+        createdUserNotification.setToUserID(lead.getCreatedUserID());
+        createdUserNotification.setLeadID(lead.getLeadID());
+        createdUserNotification.setItemName(lead.getItemName());
+        createdUserNotification.setMessage("Deal Done");
+        createdUserNotification.setType(NotificationType.DEAL_DONE.getNotificationType());
+        createdUserNotification.setIsRead(false);
+        createdUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        em.persist(createdUserNotification);
+
+        // For Assigned User
+        Notification assignedUserNotification = new Notification();
+        assignedUserNotification.setFromUserID(lead.getBrokerID());
+        assignedUserNotification.setToUserID(lead.getAssignedToUserID());
+        assignedUserNotification.setLeadID(lead.getLeadID());
+        assignedUserNotification.setItemName(lead.getItemName());
+        assignedUserNotification.setMessage("Deal Done");
+        assignedUserNotification.setIsRead(false);
+        assignedUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
+        em.persist(assignedUserNotification);
+
+        sendPushNotification(usersMap.get(lead.getCreatedUserID()).getGcmKey(), createdUsername);
+        sendPushNotification(usersMap.get(lead.getAssignedToUserID()).getGcmKey(), createdUsername);
     }
 }

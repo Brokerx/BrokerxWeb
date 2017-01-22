@@ -12,5 +12,5 @@ package com.firstidea.garnet.web.brokerx.ctrl;
 public interface ChatCtrl extends AuthenticationCtrl{
     public String sendMsg(Integer fromUserID, String fromUserName, Integer toUserID, Integer leadID, String type, String message, String fromUserType, String itemName);
     public String getChats(Integer fromUserID, Integer toUserID, Integer leadID);
-    
+    public String getNotifications(Integer userID);
 }

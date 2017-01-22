@@ -61,4 +61,14 @@ public class ChatResource extends AppResource {
         String response = chatCtrl.sendMsg(fromUserID, fromUserName, toUserID, advertisementID, type, message, fromUserType, itemName);
         return response;
     }
+    
+    @POST
+    @Path("/getNotifications")
+    @Produces("application/json")
+    public String getNotifications(@FormParam("userID") Integer userID) {
+        ChatCtrl chatCtrl = CtrlCollection.CHAT_CTRL;
+        chatCtrl.setUserRequest(request);
+        String response = chatCtrl.getNotifications(userID);
+        return response;
+    }
 }
