@@ -361,7 +361,7 @@ public class LeadServiceBean implements LeadService {
             }
             String status = LeadCurrentStatus.Done.getStatus();
             queryString.append(" AND BuyerStatus= :status AND SellerStatus=:status AND BrokerStatus=:status AND SellerStatus=:status  "
-                    + " AND ParentLeadID Is NOT Null");
+                    + " AND ParentLeadID Is NOT Null ORDER BY LastUpdDateTime DESC");
             queryParams.put("status", status);
             Query query = em.createQuery(queryString.toString());
             for (String param : queryParams.keySet()) {
@@ -759,6 +759,7 @@ public class LeadServiceBean implements LeadService {
         assignedUserNotification.setLeadID(lead.getLeadID());
         assignedUserNotification.setItemName(lead.getItemName());
         assignedUserNotification.setMessage("Deal Done");
+        assignedUserNotification.setType(NotificationType.DEAL_DONE.getNotificationType());
         assignedUserNotification.setIsRead(false);
         assignedUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(assignedUserNotification);
