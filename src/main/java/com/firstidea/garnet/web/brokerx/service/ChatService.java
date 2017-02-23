@@ -17,4 +17,6 @@ public interface ChatService {
     public MessageDTO sendMsg(Integer fromUserID, String fromUserName, Integer toUserID, Integer leadID, String type, String message, String fromUserType, String itemName);
     public MessageDTO getChats(Integer fromUserID, Integer toUserID, Integer leadID);
     public MessageDTO getNotifications(Integer userID);
+    public MessageDTO getUnreadNotificationCount(Integer userID);
+    public MessageDTO getChatSummary(Integer userID);
 }

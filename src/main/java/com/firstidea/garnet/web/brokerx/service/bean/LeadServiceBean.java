@@ -253,6 +253,18 @@ public class LeadServiceBean implements LeadService {
             }
 
             em.merge(parentLead);
+            Query query = em.createNativeQuery(QueryConstants.UPDATE_LEAD_ID_IN_CHAT_ON_DEAL_DONE)
+                    .setParameter("newLeadID", childLead.getLeadID())
+                    .setParameter("oldLeadID", parentLead.getLeadID());
+                    
+            int chatsUpdCount = query.executeUpdate();
+            
+            Query chatSummaryUpdatequery = em.createNativeQuery(QueryConstants.UPDATE_LEAD_ID_IN_CHAT_SUMMARY_ON_DEAL_DONE)
+                    .setParameter("newLeadID", childLead.getLeadID())
+                    .setParameter("oldLeadID", parentLead.getLeadID());
+                    
+            int chatsSummaryUpdateCount = chatSummaryUpdatequery.executeUpdate();
+            
             childLead = em.merge(childLead);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(childLead);

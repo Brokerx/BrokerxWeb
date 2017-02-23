@@ -71,4 +71,24 @@ public class ChatResource extends AppResource {
         String response = chatCtrl.getNotifications(userID);
         return response;
     }
+    
+    @POST
+    @Path("/getUnreadNotificationCount")
+    @Produces("application/json")
+    public String getUnreadNotificationCount(@FormParam("userID") Integer userID) {
+        ChatCtrl chatCtrl = CtrlCollection.CHAT_CTRL;
+        chatCtrl.setUserRequest(request);
+        String response = chatCtrl.getUnreadNotificationCount(userID);
+        return response;
+    }
+    
+    @POST
+    @Path("/getChatSummary")
+    @Produces("application/json")
+    public String getChatSummary(@FormParam("userID") Integer userID) {
+        ChatCtrl chatCtrl = CtrlCollection.CHAT_CTRL;
+        chatCtrl.setUserRequest(request);
+        String response = chatCtrl.getChatSummary(userID);
+        return response;
+    }
 }

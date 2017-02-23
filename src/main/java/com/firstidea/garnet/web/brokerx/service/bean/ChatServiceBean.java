@@ -8,6 +8,7 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.Chat;
+import com.firstidea.garnet.web.brokerx.entity.ChatSummary;
 import com.firstidea.garnet.web.brokerx.entity.Lead;
 import com.firstidea.garnet.web.brokerx.entity.Notification;
 import com.firstidea.garnet.web.brokerx.entity.User;
@@ -15,6 +16,7 @@ import com.firstidea.garnet.web.brokerx.service.ChatService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -57,6 +59,16 @@ public class ChatServiceBean implements ChatService {
             chat.setItemName(itemName);
             String msgJSON = JsonConverter.createJson(chat);
 
+            Query updateChatSummary = em.createNativeQuery(QueryConstants.UPDATE_CHAT_SUMMARY_BY_USERS_N_LEAD)
+                    .setParameter("msg", message)
+                    .setParameter("msgType", type)
+                    .setParameter("leadID", leadID)
+                    .setParameter("fromUserID", fromUserID)
+                    .setParameter("toUserID", toUserID);
+            int updateCount = updateChatSummary.executeUpdate();
+            if (updateCount <= 0) {
+                createChatSummary(chat);
+            }
             GCMUtils.sendNotification(toUser.getGcmKey(), msgJSON, GCMUtils.TYPE_USER_COMMUNICATION);
             messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(chat);
@@ -68,6 +80,53 @@ public class ChatServiceBean implements ChatService {
         }
 
         return messageDTO;
+    }
+
+    private void createChatSummary(Chat chat) {
+        Lead lead = em.find(Lead.class, chat.getLeadID());
+        ChatSummary chatSummary = new ChatSummary();
+        chatSummary.setLeadID(chat.getLeadID());
+        chatSummary.setFromUserID(chat.getFromUserID());
+        chatSummary.setToUserID(chat.getToUserID());
+        chatSummary.setLastMsgType(chat.getType());
+        chatSummary.setLastMsg(chat.getMessage());
+        chatSummary.setItemName(lead.getItemName());
+        chatSummary.setLastMsgDateTime(ApptDateUtils.getCurrentDateAndTime());
+        if (lead.getType().equals("B")) {
+            if (chat.getFromUserID() == lead.getCreatedUserID()) {
+                chatSummary.setFromUserType("B");
+            } else if (chat.getFromUserID() == lead.getBrokerID()) {
+                chatSummary.setFromUserType("R");
+            } else {
+                chatSummary.setFromUserType("S");
+            }
+
+            if (chat.getToUserID() == lead.getCreatedUserID()) {
+                chatSummary.setToUserType("B");
+            } else if (chat.getToUserID() == lead.getBrokerID()) {
+                chatSummary.setToUserType("R");
+            } else {
+                chatSummary.setToUserType("S");
+            }
+        } else {
+            if (chat.getFromUserID() == lead.getCreatedUserID()) {
+                chatSummary.setFromUserType("S");
+            } else if (chat.getFromUserID() == lead.getBrokerID()) {
+                chatSummary.setFromUserType("R");
+            } else {
+                chatSummary.setFromUserType("B");
+            }
+
+            if (chat.getToUserID() == lead.getCreatedUserID()) {
+                chatSummary.setToUserType("S");
+            } else if (chat.getToUserID() == lead.getBrokerID()) {
+                chatSummary.setToUserType("R");
+            } else {
+                chatSummary.setToUserType("B");
+            }
+        }
+
+        em.persist(chatSummary);
     }
 
     @Override
@@ -117,8 +176,67 @@ public class ChatServiceBean implements ChatService {
             }
             messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(notifications);
+            Query updateQuery = em.createNativeQuery(QueryConstants.UPDATE_NOTIFICATION_READ_FLAG_BY_USERID)
+                    .setParameter("userID", userID);
+            int rowsUpdated = updateQuery.executeUpdate();
         } catch (Exception e) {
-            logger.error(" ERROR : getNotifications() Start : userID " + userID);
+            logger.error(" ERROR : getNotifications() ERROR : userID " + userID);
+            messageDTO = MessageDTO.getFailureDTO();
+        }
+
+        return messageDTO;
+    }
+
+    @Override
+    public MessageDTO getUnreadNotificationCount(Integer userID) {
+        MessageDTO messageDTO = null;
+        try {
+            Query query = em.createNativeQuery(QueryConstants.GET_UNREAD_NOTIFICATION_COUNT_BY_USERID)
+                    .setParameter("userID", userID);
+            BigInteger count = (BigInteger) query.getSingleResult();
+            messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(count);
+        } catch (Exception e) {
+            logger.error(" ERROR : getUnreadNotificationCount() ERROR : userID " + userID);
+            messageDTO = MessageDTO.getFailureDTO();
+        }
+
+        return messageDTO;
+    }
+
+    @Override
+    public MessageDTO getChatSummary(Integer userID) {
+        MessageDTO messageDTO = null;
+        try {
+            Query query = em.createQuery(QueryConstants.GET_CHAT_SUMMARY_BY_USERS_ID)
+                    .setParameter("userID", userID);
+            List<ChatSummary> chatSummarys = query.getResultList();
+            List<Integer> userIDs = new ArrayList<Integer>();
+            for (ChatSummary chatSummary : chatSummarys) {
+                if (chatSummary.getToUserID().equals(userID)) {
+                    userIDs.add(chatSummary.getFromUserID());
+                } else {
+                    userIDs.add(chatSummary.getToUserID());
+                }
+            }
+            Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                    .setParameter("userIDs", userIDs);
+            List<User> users = userQuery.getResultList();
+            Map<Integer, User> usersMap = new HashMap();
+            for (User user : users) {
+                usersMap.put(user.getUserID(), user);
+            }
+            for (ChatSummary chatSummary : chatSummarys) {
+                if (chatSummary.getToUserID().equals(userID)) {
+                    chatSummary.setToUser(usersMap.get(chatSummary.getFromUserID()));
+                } else {
+                    chatSummary.setToUser(usersMap.get(chatSummary.getToUserID()));
+                }
+            }
+            messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(chatSummarys);
+        } catch (Exception e) {
+            logger.error(" ERROR : getChatSummary() ERROR : userID " + userID);
             messageDTO = MessageDTO.getFailureDTO();
         }
 

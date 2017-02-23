@@ -33,5 +33,15 @@ public class ChatCtrlImpl extends Authentication implements ChatCtrl {
     public String getNotifications(Integer userID) {
         return JsonConverter.createJson(chatService.getNotifications(userID));
     }
+
+    @Override
+    public String getUnreadNotificationCount(Integer userID) {
+        return JsonConverter.createJson(chatService.getUnreadNotificationCount(userID));
+    }
+
+    @Override
+    public String getChatSummary(Integer userID) {
+        return JsonConverter.createJson(chatService.getChatSummary(userID));
+    }
     
 }
