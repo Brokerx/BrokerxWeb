@@ -75,6 +75,8 @@ public class Lead implements Serializable {
     private Integer qtyUnit;
     @Column(name = "Packing")
     private Integer packing;
+    @Column(name = "PackingType")
+    private String packingType;
     @Size(max = 250)
     @Column(name = "Location")
     private String location;
@@ -83,6 +85,10 @@ public class Lead implements Serializable {
     private BigDecimal basicPrice;
     @Column(name = "BasicPriceUnit")
     private Integer basicPriceUnit;
+    @Column(name = "Excisetype")
+    private Integer excisetype;
+    @Column(name = "Tax")
+    private BigDecimal tax;
     @Column(name = "ExciseDuty")
     private BigDecimal exciseDuty;
     @Column(name = "ExciseUnit")
@@ -266,6 +272,14 @@ public class Lead implements Serializable {
         this.packing = packing;
     }
 
+    public String getPackingType() {
+        return packingType;
+    }
+
+    public void setPackingType(String packingType) {
+        this.packingType = packingType;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -280,6 +294,22 @@ public class Lead implements Serializable {
 
     public void setBasicPrice(BigDecimal basicPrice) {
         this.basicPrice = basicPrice;
+    }
+
+    public Integer getExcisetype() {
+        return excisetype;
+    }
+
+    public void setExcisetype(Integer excisetype) {
+        this.excisetype = excisetype;
+    }
+
+    public BigDecimal getTax() {
+        return tax;
+    }
+
+    public void setTax(BigDecimal tax) {
+        this.tax = tax;
     }
 
     public BigDecimal getExciseDuty() {

@@ -70,14 +70,22 @@ public class LeadHistory implements Serializable {
     private Integer qtyUnit;
     @Column(name = "Packing")
     private Integer packing;
+    @Column(name = "PackingType")
+    private String packingType;
     @Size(max = 250)
     @Column(name = "Location")
     private String location;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "BasicPrice")
     private BigDecimal basicPrice;
+    @Column(name = "Excisetype")
+    private Integer excisetype;
+    @Column(name = "Tax")
+    private BigDecimal tax;
     @Column(name = "ExciseDuty")
     private BigDecimal exciseDuty;
+    @Column(name = "ExciseUnit")
+    private Integer exciseUnit;
     @Column(name = "TransportCharges")
     private BigDecimal transportCharges;
     @Column(name = "MiscCharges")
@@ -215,6 +223,14 @@ public class LeadHistory implements Serializable {
         this.packing = packing;
     }
 
+    public String getPackingType() {
+        return packingType;
+    }
+
+    public void setPackingType(String packingType) {
+        this.packingType = packingType;
+    }
+
     public String getLocation() {
         return location;
     }
@@ -237,6 +253,30 @@ public class LeadHistory implements Serializable {
 
     public void setExciseDuty(BigDecimal exciseDuty) {
         this.exciseDuty = exciseDuty;
+    }
+
+    public Integer getExcisetype() {
+        return excisetype;
+    }
+
+    public void setExcisetype(Integer excisetype) {
+        this.excisetype = excisetype;
+    }
+
+    public BigDecimal getTax() {
+        return tax;
+    }
+
+    public void setTax(BigDecimal tax) {
+        this.tax = tax;
+    }
+
+    public Integer getExciseUnit() {
+        return exciseUnit;
+    }
+
+    public void setExciseUnit(Integer exciseUnit) {
+        this.exciseUnit = exciseUnit;
     }
 
     public BigDecimal getTransportCharges() {
