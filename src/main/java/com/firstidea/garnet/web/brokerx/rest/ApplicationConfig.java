@@ -33,6 +33,7 @@ public class ApplicationConfig extends Application {
         resources.add(com.firstidea.garnet.web.brokerx.rest.ChatResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.FileResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.LeadResource.class);
+        resources.add(com.firstidea.garnet.web.brokerx.rest.LoginResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.UserResource.class);
     }
     

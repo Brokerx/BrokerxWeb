@@ -27,7 +27,7 @@ public class GCMUtils {
     public static String TYPE_USER_COMMUNICATION = "UserCommunication";
     public static String TYPE_NEW_NOTIFICATION = "NewNotification";
     
-    public static void sendNotification(String regID, String data, String type){
+    public static void sendNotification(String regID, String data, String type, String payload){
         try {
             logger.info(GCMUtils.class
                     + " : sendNotification() : Sending New notification : TYPE = " + type
@@ -35,7 +35,8 @@ public class GCMUtils {
             String serverKey = "AIzaSyCVXSzPy3_forGg89qf_fendr9cSHM8AI4"; // created from mobilehealthcaresystem@gmail.com firebase
             Sender sender = new Sender(serverKey); 
             Message message = new Message.Builder().addData("type", type)
-                    .addData("data", data).addData("SentDttm", ApptDateUtils.getFormattedDateString(new Date())).build();
+                    .addData("data", data).addData("payload",payload)
+                    .addData("SentDttm", ApptDateUtils.getFormattedDateString(new Date())).build();
             Result result = sender.send(message, regID, 5);
             if (result != null && result.getMessageId() != null && !result.getMessageId().isEmpty()) {
                 //TODO Handle success result

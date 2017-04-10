@@ -19,6 +19,7 @@ import com.firstidea.garnet.web.brokerx.util.GarnetStringUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -196,7 +197,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
             messageDTO.setData(userConnection);
             User user = em.find(User.class, toUserID);
             if (StringUtils.isNotBlank(user.getGcmKey())) {
-                GCMUtils.sendNotification(user.getGcmKey(), user.getFullName(), GCMUtils.TYPE_CONNECTION_REQUEST);
+                GCMUtils.sendNotification(user.getGcmKey(), user.getFullName(), GCMUtils.TYPE_CONNECTION_REQUEST,"");
             }
             return messageDTO;
         } catch (Exception e) {
@@ -219,7 +220,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
                 if (StringUtils.isNotBlank(fromUser.getGcmKey())) {
                     User toUser = em.find(User.class, userConnection.getToUserID());
                     String type = status.equals(ConnectionStatus.ACCEPTED) ? GCMUtils.TYPE_CONNECTION_REQUEST_ACCEPTED : GCMUtils.TYPE_CONNECTION_REQUEST_REJECTED;
-                    GCMUtils.sendNotification(fromUser.getGcmKey(), toUser.getFullName(), type);
+                    GCMUtils.sendNotification(fromUser.getGcmKey(), toUser.getFullName(), type,"");
                 }
             } else {
                 messageDTO = MessageDTO.getFailureDTO();
@@ -318,6 +319,24 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
                 messageDTO.setData(user);
                 return messageDTO;
             }
+        } catch (Exception e) {
+            logger.error(BrokerxUserServiceBean.class + " updateBrokerDealsInItems() : ERROR " + e.toString());
+        }
+        return MessageDTO.getFailureDTO();
+    }
+
+    @Override
+    public MessageDTO getUsers(String userType, Date startDate, Date endDate) {
+        try {
+            MessageDTO messageDTO;
+//            User user = em.find(User.class, brokerID);
+//            if (user != null) {
+//                user.setBrokerDealsInItems(items);
+//                em.merge(user);
+//                messageDTO = MessageDTO.getSuccessDTO();
+//                messageDTO.setData(user);
+//                return messageDTO;
+//            }
         } catch (Exception e) {
             logger.error(BrokerxUserServiceBean.class + " updateBrokerDealsInItems() : ERROR " + e.toString());
         }

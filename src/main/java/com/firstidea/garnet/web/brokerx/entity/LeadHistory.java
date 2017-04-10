@@ -30,7 +30,7 @@ import javax.validation.constraints.Size;
 @Table(name = "LeadHistory")
 @NamedQueries({
     @NamedQuery(name = "LeadHistory.findAll", query = "SELECT l FROM LeadHistory l"),
-    @NamedQuery(name = "LeadHistory.getByLeadID", query = "SELECT l FROM LeadHistory l where l.leadID=:leadID")
+    @NamedQuery(name = "LeadHistory.getByLeadID", query = "SELECT l FROM LeadHistory l where l.leadID=:leadID order by CreatedDttm desc")
 })
 public class LeadHistory implements Serializable {
     private static final long serialVersionUID = 1L;

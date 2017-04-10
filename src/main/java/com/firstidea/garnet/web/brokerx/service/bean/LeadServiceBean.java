@@ -70,6 +70,7 @@ public class LeadServiceBean implements LeadService {
                         parentLead.setSellerStatus(LeadCurrentStatus.Accepted.getStatus());
                     }
                     parentLead.setBrokerStatus(LeadCurrentStatus.Accepted.getStatus());
+                    parentLead.setAssignedToUserID(lead.getCreatedUserID());
                     em.merge(parentLead);
                 }
                 em.persist(lead);
@@ -139,7 +140,7 @@ public class LeadServiceBean implements LeadService {
         notification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(notification);
         
-        sendPushNotification(gcmKey, createdUsername);
+        sendPushNotification(gcmKey, createdUsername, notification);
 
     }
 
@@ -178,7 +179,7 @@ public class LeadServiceBean implements LeadService {
 
         em.persist(notification);
         if (StringUtils.isNotBlank(gcmKey)) {
-            GCMUtils.sendNotification(gcmKey, userName, type);
+            sendPushNotification(gcmKey, userName, notification);
         }
     }
 
@@ -192,10 +193,10 @@ public class LeadServiceBean implements LeadService {
                 queryParams.put("createdUserID", userID);
             }
             String statusColumnName = type.equals("B") ? "l.buyerStatus" : "l.sellerStatus";
-            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
+            String includeStatus = ""+ LeadCurrentStatus.Rejected.getStatus() + "," + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
             List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
-            queryString.append(" AND " + statusColumnName + " IN (:includeStatus) "
-                    + " AND l.assignedToUserID Is Null");
+            queryString.append(" AND " + statusColumnName + " IN (:includeStatus) ");
+//                    + " AND l.assignedToUserID Is Null");
             queryParams.put("includeStatus", includeStatusList);
             Query query = em.createQuery(queryString.toString());
             for (String param : queryParams.keySet()) {
@@ -318,6 +319,7 @@ public class LeadServiceBean implements LeadService {
         Notification buyerNotification = new Notification();
         buyerNotification.setFromUserID(sellerID);
         String createdUsername = usersMap.get(sellerID).getFullName();
+        String brokerName = usersMap.get(lead.getBrokerID()).getFullName();
         buyerNotification.setToUserID(buyerID);
         buyerNotification.setLeadID(lead.getLeadID());
         buyerNotification.setItemName(lead.getItemName());
@@ -339,8 +341,8 @@ public class LeadServiceBean implements LeadService {
         brokerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(brokerNotification);
 
-        sendPushNotification(usersMap.get(buyerID).getGcmKey(), createdUsername);
-        sendPushNotification(usersMap.get(lead.getBrokerID()).getGcmKey(), createdUsername);
+        sendPushNotification(usersMap.get(buyerID).getGcmKey(), createdUsername, buyerNotification);
+        sendPushNotification(usersMap.get(lead.getBrokerID()).getGcmKey(), brokerName, brokerNotification);
     }
 
     @Override
@@ -508,8 +510,8 @@ public class LeadServiceBean implements LeadService {
 //            }
             String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
             List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
-            queryString.append(" AND l.brokerStatus IN (:includeStatus) "
-                    + " AND l.assignedToUserID Is Null");
+            queryString.append(" AND l.brokerStatus IN (:includeStatus) ");
+//                    + " AND l.assignedToUserID Is Null");
             queryParams.put("includeStatus", includeStatusList);
 
             if (startDate != null && endDate != null) {
@@ -629,7 +631,7 @@ public class LeadServiceBean implements LeadService {
 //            String fieldsAltered = getFieldsAltered(prevLead, lead);
             leadHistory.setFieldsAltered(fieldsAltered);
         } else {
-            leadHistory.setFieldsAltered("Lead Created");
+            leadHistory.setFieldsAltered("Created The Lead");
         }
         leadHistory.setFreeStoragePeriod(lead.getFreeStoragePeriod());
         leadHistory.setLocation(lead.getLocation());
@@ -654,8 +656,19 @@ public class LeadServiceBean implements LeadService {
                 isStatusChanged = true;
                 continue;
             }
+            if (key.contains("isMoveToPending")) {
+                alteredFileds.append("Moved To Pending Deals");
+                break;
+            }
             if (key.contains("lastUpd") || key.contains("createdUser")
-                    || key.toLowerCase().equals("broker")) {
+                    || key.equals("lastUpdDateTime")
+                    || key.equals("createdUser")
+                    || key.equals("lastUpdUserID")
+                    || key.equals("asPerAvailablity")
+                    || key.toLowerCase().equals("broker")
+                    || key.toLowerCase().equals("seller")
+                    || key.toLowerCase().equals("buyer")
+                    ) {
                 continue;
             }
             if (!Objects.equals(prevLeadMap.get(key), nweLeadMap.get(key))) {
@@ -667,7 +680,7 @@ public class LeadServiceBean implements LeadService {
             fields = fields.substring(0, fields.lastIndexOf(",")).trim();
         }
         if (fields.trim().length() == 0 && isStatusChanged) {
-            fields = "Changed Status";
+            fields = "Changed The Status";
         }
         return fields;
     }
@@ -733,10 +746,11 @@ public class LeadServiceBean implements LeadService {
         }
     }
 
-    private void sendPushNotification(String gcmKey, String userName) {
+    private void sendPushNotification(String gcmKey, String userName, Notification notification) {
         String type = GCMUtils.TYPE_NEW_NOTIFICATION;
         if (StringUtils.isNotBlank(gcmKey)) {
-            GCMUtils.sendNotification(gcmKey, userName, type);
+            String payload = JsonConverter.createJson(notification);
+            GCMUtils.sendNotification(gcmKey, userName, type, payload);
         }
     }
 
@@ -776,7 +790,7 @@ public class LeadServiceBean implements LeadService {
         assignedUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(assignedUserNotification);
 
-        sendPushNotification(usersMap.get(lead.getCreatedUserID()).getGcmKey(), createdUsername);
-        sendPushNotification(usersMap.get(lead.getAssignedToUserID()).getGcmKey(), createdUsername);
+        sendPushNotification(usersMap.get(lead.getCreatedUserID()).getGcmKey(), createdUsername, createdUserNotification);
+        sendPushNotification(usersMap.get(lead.getAssignedToUserID()).getGcmKey(), createdUsername, assignedUserNotification);
     }
 }

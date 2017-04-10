@@ -69,7 +69,7 @@ public class ChatServiceBean implements ChatService {
             if (updateCount <= 0) {
                 createChatSummary(chat);
             }
-            GCMUtils.sendNotification(toUser.getGcmKey(), msgJSON, GCMUtils.TYPE_USER_COMMUNICATION);
+            GCMUtils.sendNotification(toUser.getGcmKey(), msgJSON, GCMUtils.TYPE_USER_COMMUNICATION,"");
             messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(chat);
         } catch (Exception e) {

@@ -464,13 +464,13 @@ public class ApptDateUtils {
 
     public static Date getTimeZoneDate(String timeZone) {
 
-        TimeZone tz = TimeZone.getTimeZone(timeZone);
-        Calendar timeZoneDt = Calendar.getInstance(tz);
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(timeZoneDt.get(Calendar.YEAR), timeZoneDt.get(Calendar.MONTH), timeZoneDt.get(Calendar.DATE),
-                timeZoneDt.get(Calendar.HOUR_OF_DAY), timeZoneDt.get(Calendar.MINUTE), (timeZoneDt.get(Calendar.SECOND) + 90));
+//        TimeZone tz = TimeZone.getTimeZone(timeZone);
+//        Calendar timeZoneDt = Calendar.getInstance(tz);
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.set(timeZoneDt.get(Calendar.YEAR), timeZoneDt.get(Calendar.MONTH), timeZoneDt.get(Calendar.DATE),
+//                timeZoneDt.get(Calendar.HOUR_OF_DAY), timeZoneDt.get(Calendar.MINUTE), (timeZoneDt.get(Calendar.SECOND) + 90));
 
-        return calendar.getTime();
+        return Calendar.getInstance().getTime();
     }
 
     public static Date getDateBeforeMinutes(Date inputDate, Integer minutes) {

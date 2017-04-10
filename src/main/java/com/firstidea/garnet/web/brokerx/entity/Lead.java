@@ -138,6 +138,8 @@ public class Lead implements Serializable {
     @Transient
     private String fieldsAltered;
     @Transient
+    private String createdUserType;
+    @Transient
     private Boolean isMoveToPending;;
 
     public Lead() {
@@ -478,6 +480,14 @@ public class Lead implements Serializable {
 
     public void setFieldsAltered(String fieldsAltered) {
         this.fieldsAltered = fieldsAltered;
+    }
+
+    public String getCreatedUserType() {
+        return createdUserType;
+    }
+
+    public void setCreatedUserType(String createdUserType) {
+        this.createdUserType = createdUserType;
     }
 
     public Boolean getIsMoveToPending() {
