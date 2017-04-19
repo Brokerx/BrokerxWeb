@@ -508,7 +508,10 @@ public class LeadServiceBean implements LeadService {
 //                queryString.append(" AND l.currentStatus= :currentStatus");
 //                queryParams.put("currentStatus", status);ghjgh
 //            }
-            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
+            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() 
+                    + "," + LeadCurrentStatus.Waiting.getStatus() 
+                    + "," + LeadCurrentStatus.Reverted.getStatus()
+                    + "," + LeadCurrentStatus.Rejected.getStatus();
             List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
             queryString.append(" AND l.brokerStatus IN (:includeStatus) ");
 //                    + " AND l.assignedToUserID Is Null");
@@ -652,11 +655,15 @@ public class LeadServiceBean implements LeadService {
         Map<String, Object> nweLeadMap = m.convertValue(lead, Map.class);
         boolean isStatusChanged = false;
         for (String key : prevLeadMap.keySet()) {
+            if (lead.getBrokerStatus().equals(LeadCurrentStatus.Rejected.getStatus())) {
+                alteredFileds.append("Deal rejected");
+                break;
+            }
             if (key.contains("Status")) {
                 isStatusChanged = true;
                 continue;
             }
-            if (key.contains("isMoveToPending")) {
+            if (key.contains("isMoveToPending") && lead.getBrokerStatus().equals(LeadCurrentStatus.Pending.getStatus())) {
                 alteredFileds.append("Moved To Pending Deals");
                 break;
             }
