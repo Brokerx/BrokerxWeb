@@ -142,4 +142,11 @@ public class UserResource extends AppResource {
     public String getUserConnections(@FormParam("userID") Integer userID) {
         return userCtrl.getUserConnections(userID);
     }
+    
+    @POST
+    @Produces("application/json")
+    @Path("/getAnalysisDropDownValues")
+    public String getAnalysisDropDownValues(@FormParam("userID") Integer userID) {
+        return userCtrl.getAnalysisDropDownValues(userID);
+    }
 }

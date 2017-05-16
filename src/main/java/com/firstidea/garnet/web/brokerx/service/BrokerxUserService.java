@@ -31,4 +31,5 @@ public interface BrokerxUserService {
     
     //for admin panel
     public MessageDTO getUsers(String userType, Date startDate, Date endDate);
+    public MessageDTO getAnalysisDropDownValues(Integer userID);
 }

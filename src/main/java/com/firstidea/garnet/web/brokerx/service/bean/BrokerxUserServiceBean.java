@@ -7,6 +7,7 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 
 import com.firstidea.garnet.web.brokerx.admin.ApplicationUser;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
+import com.firstidea.garnet.web.brokerx.dto.DropDownValuesDTO;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.entity.UserConnection;
@@ -197,7 +198,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
             messageDTO.setData(userConnection);
             User user = em.find(User.class, toUserID);
             if (StringUtils.isNotBlank(user.getGcmKey())) {
-                GCMUtils.sendNotification(user.getGcmKey(), user.getFullName(), GCMUtils.TYPE_CONNECTION_REQUEST,"");
+                GCMUtils.sendNotification(user.getGcmKey(), user.getFullName(), GCMUtils.TYPE_CONNECTION_REQUEST, "");
             }
             return messageDTO;
         } catch (Exception e) {
@@ -220,7 +221,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
                 if (StringUtils.isNotBlank(fromUser.getGcmKey())) {
                     User toUser = em.find(User.class, userConnection.getToUserID());
                     String type = status.equals(ConnectionStatus.ACCEPTED) ? GCMUtils.TYPE_CONNECTION_REQUEST_ACCEPTED : GCMUtils.TYPE_CONNECTION_REQUEST_REJECTED;
-                    GCMUtils.sendNotification(fromUser.getGcmKey(), toUser.getFullName(), type,"");
+                    GCMUtils.sendNotification(fromUser.getGcmKey(), toUser.getFullName(), type, "");
                 }
             } else {
                 messageDTO = MessageDTO.getFailureDTO();
@@ -343,4 +344,41 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
         return MessageDTO.getFailureDTO();
     }
 
+    @Override
+    public MessageDTO getAnalysisDropDownValues(Integer userID) {
+        try {
+            MessageDTO messageDTO;
+            DropDownValuesDTO downValuesDTO = new DropDownValuesDTO();
+            Query itemQuery = em.createNativeQuery(QueryConstants.GET_DISTINCT_ITEMS_USER_DEALS_WITH)
+                    .setParameter("userID", userID);
+            List<String> items = itemQuery.getResultList();
+            downValuesDTO.setItemsDealWith(items);
+            Query buyerListQuery = em.createNativeQuery(QueryConstants.GET_BUYER_BY_USERID)
+                    .setParameter("userID", userID);
+            List<Integer> buyerIDs = buyerListQuery.getResultList();
+            
+            Query sellerListQuery = em.createNativeQuery(QueryConstants.GET_SELLERS_BY_USERID)
+                    .setParameter("userID", userID);
+            List<Integer> sellerIDs = sellerListQuery.getResultList();
+            
+            if (buyerIDs != null && buyerIDs.size() > 0) {
+                Query query = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                        .setParameter("userIDs", buyerIDs);
+                List<User> users = query.getResultList();
+                downValuesDTO.setBuyers(users);
+            }
+            if (sellerIDs != null && sellerIDs.size() > 0) {
+                Query query = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                        .setParameter("userIDs", sellerIDs);
+                List<User> users = query.getResultList();
+                downValuesDTO.setSellers(users);
+            }
+            messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(downValuesDTO);
+            return messageDTO;
+        } catch (Exception e) {
+            logger.error(BrokerxUserServiceBean.class + " getDropDownValues() : ERROR " + e.toString());
+        }
+        return MessageDTO.getFailureDTO();
+    }
 }

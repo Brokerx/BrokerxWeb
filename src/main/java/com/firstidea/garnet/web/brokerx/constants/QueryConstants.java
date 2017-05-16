@@ -99,4 +99,9 @@ public interface QueryConstants {
             + " WHERE cs.fromUserID=:userID OR cs.toUserID=:userID"
             + " ORDER BY cs.lastMsgDateTime DESC";
     
+    String GET_DISTINCT_ITEMS_USER_DEALS_WITH = "SELECT distinct(ItemName) FROM Lead where (CreatedUserID=:userID OR AssignedToUserID=:userID) AND BuyerStatus='D';";
+    
+    String GET_SELLERS_BY_USERID = "Select distinct(CreatedUserID) from Lead where `Type`='S' and AssignedToUserID=:userID AND BuyerStatus='D'";
+    
+    String GET_BUYER_BY_USERID = "Select distinct(AssignedToUserID) from Lead where `Type`='B' and CreatedUserID=:userID AND BuyerStatus='D'";
 }

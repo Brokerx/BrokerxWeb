@@ -64,6 +64,7 @@ public class LeadResource extends AppResource {
     @Produces("application/json")
     public String getLeads(@FormParam("leadID") Integer leadID,
             @FormParam("userID") Integer userID,
+            @FormParam("otherUserID")  Integer otherUserID,
             @FormParam("type") String type,
             @FormParam("status") String status,
             @FormParam("item") String item,
@@ -72,7 +73,7 @@ public class LeadResource extends AppResource {
             @FormParam("endDate") String endDate) {
         LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
         leadCtrl.setUserRequest(request);
-        String responseString = leadCtrl.getLeads(leadID, userID, type, status, item, brokerID, startDate, endDate);
+        String responseString = leadCtrl.getLeads(leadID, userID, otherUserID, type, status, item, brokerID, startDate, endDate);
         return responseString;
     }
     

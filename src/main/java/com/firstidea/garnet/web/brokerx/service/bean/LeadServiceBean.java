@@ -413,7 +413,7 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
-    public MessageDTO getLeads(Integer leadID, Integer userID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate) {
+    public MessageDTO getLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate) {
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
             Map<String, Object> queryParams = new HashMap<String, Object>();

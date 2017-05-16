@@ -77,4 +77,10 @@ public class UserCtrlImpl extends Authentication implements UserCtrl {
         return JsonConverter.createJson(registerResponseDTO);
     }
 
+    @Override
+    public String getAnalysisDropDownValues(Integer userID) {
+        MessageDTO registerResponseDTO = userService.getAnalysisDropDownValues(userID);
+        return JsonConverter.createJson(registerResponseDTO);
+    }
+
 }

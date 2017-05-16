@@ -16,4 +16,5 @@ public interface UserCtrl extends AuthenticationCtrl {
     public String changeConnectionStatus(Integer connectionID, String status);
     public String getUserConnections(Integer userID);
     public String updateBrokerDealsInItems(Integer brokerID, String items);
+    public String getAnalysisDropDownValues(Integer userID);
 }
