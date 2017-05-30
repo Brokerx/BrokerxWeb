@@ -45,6 +45,16 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
     }
 
     @Override
+    public String getAnalysisLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String status, String item, String brokerID,String startDate, String endDate) {
+        Date start = null, end = null;
+        if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {
+            start = ApptDateUtils.getFormatedDate(startDate);
+            end = ApptDateUtils.getFormatedDate(endDate);
+        }
+        return JsonConverter.createJson(leadService.getAnalysisLeads(leadID, userID, otherUserID, type, status, item, brokerID, start, end));
+    }
+
+    @Override
     public String getLeadsByBroker(Integer userID, String type, String status, String startDate, String endDate) {
         Date start = null, end = null;
         if (StringUtils.isNotBlank(startDate) && StringUtils.isNotBlank(endDate)) {

@@ -79,6 +79,25 @@ public class LeadResource extends AppResource {
     
 
     @POST
+    @Path("/getAnalysisLeads")
+    @Produces("application/json")
+    public String getAnalysisLeads(@FormParam("leadID") Integer leadID,
+            @FormParam("userID") Integer userID,
+            @FormParam("otherUserID")  Integer otherUserID,
+            @FormParam("type") String type,
+            @FormParam("status") String status,
+            @FormParam("item") String item,
+            @FormParam("brokerID") String brokerID,
+            @FormParam("startDate") String startDate,
+            @FormParam("endDate") String endDate) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        String responseString = leadCtrl.getAnalysisLeads(leadID, userID, otherUserID, type, status, item, brokerID, startDate, endDate);
+        return responseString;
+    }
+    
+
+    @POST
     @Path("/getLeadDocuments")
     @Produces("application/json")
     public String getLeadDocuments(@FormParam("leadID") Integer leadID) {

@@ -17,6 +17,7 @@ public interface LeadCtrl extends AuthenticationCtrl{
     public String saveLead(String leadJSON);
     public String getLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String status, String item, String brokerID,String startDate, String endDate);
     public String getLeadsByBroker(Integer userID, String type, String status,String startDate, String endDate);
+    public String getAnalysisLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String status, String item, String brokerIDString, String startDate, String endDate);
     public String getLeadHistory(Integer leadID);
     public String getActiveLeads(Integer userID, String type);
     public String getHistory(Integer userID, String startDate, String endDate);

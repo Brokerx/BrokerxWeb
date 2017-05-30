@@ -22,6 +22,7 @@ import org.apache.commons.fileupload.FileItem;
 public interface LeadService {
     public MessageDTO saveLead(Lead lead);
     public MessageDTO getLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String status, String item, String brokerID,Date startDate, Date endDate);
+    public MessageDTO getAnalysisLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String status, String item, String brokerIDString, Date startDate, Date endDate);
     public MessageDTO getLeadsByBroker(Integer userID, String type, String status,Date startDate, Date endDate);
     public MessageDTO getLeadHistory(Integer leadID);
     public MessageDTO getActiveLeads(Integer userID, String type);

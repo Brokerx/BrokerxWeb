@@ -348,19 +348,31 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
     public MessageDTO getAnalysisDropDownValues(Integer userID) {
         try {
             MessageDTO messageDTO;
+            User user = em.find(User.class, userID);
             DropDownValuesDTO downValuesDTO = new DropDownValuesDTO();
-            Query itemQuery = em.createNativeQuery(QueryConstants.GET_DISTINCT_ITEMS_USER_DEALS_WITH)
-                    .setParameter("userID", userID);
-            List<String> items = itemQuery.getResultList();
-            downValuesDTO.setItemsDealWith(items);
-            Query buyerListQuery = em.createNativeQuery(QueryConstants.GET_BUYER_BY_USERID)
-                    .setParameter("userID", userID);
-            List<Integer> buyerIDs = buyerListQuery.getResultList();
-            
-            Query sellerListQuery = em.createNativeQuery(QueryConstants.GET_SELLERS_BY_USERID)
-                    .setParameter("userID", userID);
-            List<Integer> sellerIDs = sellerListQuery.getResultList();
-            
+            List<Integer> buyerIDs,sellerIDs;
+            if (user.getIsBroker()) {
+                Query buyerListQuery = em.createNativeQuery(QueryConstants.GET_BUYER_BY_BROKERID)
+                        .setParameter("userID", userID);
+                buyerIDs = buyerListQuery.getResultList();
+
+                Query sellerListQuery = em.createNativeQuery(QueryConstants.GET_SELLERS_BY_BROKERID)
+                        .setParameter("userID", userID);
+                sellerIDs = sellerListQuery.getResultList();
+            } else {
+                Query itemQuery = em.createNativeQuery(QueryConstants.GET_DISTINCT_ITEMS_USER_DEALS_WITH)
+                        .setParameter("userID", userID);
+                List<String> items = itemQuery.getResultList();
+                downValuesDTO.setItemsDealWith(items);
+
+                Query buyerListQuery = em.createNativeQuery(QueryConstants.GET_BUYER_BY_USERID)
+                        .setParameter("userID", userID);
+                buyerIDs = buyerListQuery.getResultList();
+
+                Query sellerListQuery = em.createNativeQuery(QueryConstants.GET_SELLERS_BY_USERID)
+                        .setParameter("userID", userID);
+                sellerIDs = sellerListQuery.getResultList();
+            }
             if (buyerIDs != null && buyerIDs.size() > 0) {
                 Query query = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
                         .setParameter("userIDs", buyerIDs);

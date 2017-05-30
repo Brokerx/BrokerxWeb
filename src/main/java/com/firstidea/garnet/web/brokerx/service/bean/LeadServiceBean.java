@@ -106,7 +106,6 @@ public class LeadServiceBean implements LeadService {
         return MessageDTO.getFailureDTO();
     }
 
-    
     private void sendLeadHistoryNotification(LeadHistory leadHistory, Lead lead) {
         Notification notification = new Notification();
         notification.setFromUserID(lead.getLastUpdUserID());
@@ -139,7 +138,7 @@ public class LeadServiceBean implements LeadService {
         notification.setIsRead(false);
         notification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(notification);
-        
+
         sendPushNotification(gcmKey, createdUsername, notification);
 
     }
@@ -193,7 +192,7 @@ public class LeadServiceBean implements LeadService {
                 queryParams.put("createdUserID", userID);
             }
             String statusColumnName = type.equals("B") ? "l.buyerStatus" : "l.sellerStatus";
-            String includeStatus = ""+ LeadCurrentStatus.Rejected.getStatus() + "," + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
+            String includeStatus = "" + LeadCurrentStatus.Rejected.getStatus() + "," + LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
             List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
             queryString.append(" AND " + statusColumnName + " IN (:includeStatus) ");
 //                    + " AND l.assignedToUserID Is Null");
@@ -257,15 +256,15 @@ public class LeadServiceBean implements LeadService {
             Query query = em.createNativeQuery(QueryConstants.UPDATE_LEAD_ID_IN_CHAT_ON_DEAL_DONE)
                     .setParameter("newLeadID", childLead.getLeadID())
                     .setParameter("oldLeadID", parentLead.getLeadID());
-                    
+
             int chatsUpdCount = query.executeUpdate();
-            
+
             Query chatSummaryUpdatequery = em.createNativeQuery(QueryConstants.UPDATE_LEAD_ID_IN_CHAT_SUMMARY_ON_DEAL_DONE)
                     .setParameter("newLeadID", childLead.getLeadID())
                     .setParameter("oldLeadID", parentLead.getLeadID());
-                    
+
             int chatsSummaryUpdateCount = chatSummaryUpdatequery.executeUpdate();
-            
+
             childLead = em.merge(childLead);
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(childLead);
@@ -296,8 +295,8 @@ public class LeadServiceBean implements LeadService {
     private void sendLeadStatusHisoryNotification(Integer leadID, boolean isDocumentUploaded) {
         Lead lead = em.find(Lead.class, leadID);
         List<Integer> userIDs = new ArrayList<Integer>();
-        Integer buyerID,sellerID;
-        if(lead.getType().equals("B")){
+        Integer buyerID, sellerID;
+        if (lead.getType().equals("B")) {
             buyerID = lead.getCreatedUserID();
             sellerID = lead.getAssignedToUserID();
         } else {
@@ -491,6 +490,123 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
+    public MessageDTO getAnalysisLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String brokerageStatus, String item, String brokerIDString, Date startDate, Date endDate) {
+        try {
+            StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
+            Map<String, Object> queryParams = new HashMap<String, Object>();
+            boolean isBroker = false;
+            if (leadID != null) {
+                queryString.append(" AND l.leadID= :leadID");
+                queryParams.put("leadID", leadID);
+            } else {
+//                if (userID != null) {
+//                    queryString.append(" AND (l.createdUserID= :createdUserID"
+//                            + " OR l.brokerID= :createdUserID) ");
+//                    queryParams.put("createdUserID", userID);
+//                }
+                User user = em.find(User.class, userID);
+                if (user.getIsBroker()) {
+                    isBroker = true;
+                    queryString.append(" AND l.brokerID=:brokerID");
+                    queryParams.put("brokerID", userID);
+                    if (otherUserID != null && otherUserID > 0) {
+                        queryString.append(" AND (l.assignedToUserID= :assignedToUserID OR l.createdUserID= :assignedToUserID)");
+                        queryParams.put("assignedToUserID", otherUserID);
+                    }
+                } else {
+                    queryString.append(" AND l.createdUserID= :createdUserID");
+                    queryParams.put("createdUserID", userID);
+                    if (otherUserID != null && otherUserID > 0) {
+                        queryString.append(" AND l.assignedToUserID= :assignedToUserID");
+                        queryParams.put("assignedToUserID", otherUserID);
+                    }
+                }
+
+                if (StringUtils.isNotBlank(type)) {
+                    queryString.append(" AND l.type= :type");
+                    queryParams.put("type", type);
+                }
+//                if (status != null) {
+                String statusColumnName = type.equals("B") ? "buyerStatus" : "sellerStatus";
+                queryString.append(" AND l.").append(statusColumnName).append("= :currentStatus");
+                queryParams.put("currentStatus", "D");
+//                }
+                if (StringUtils.isNotBlank(item)) {
+                    queryString.append(" AND l.itemName=:itemName");
+                    queryParams.put("itemName", item);
+                }
+                if (StringUtils.isNotBlank(brokerIDString) && !brokerIDString.equals("0")) {
+                    Integer brokerID = Integer.parseInt(brokerIDString);
+                    queryString.append(" AND l.brokerID=:brokerID");
+                    queryParams.put("brokerID", brokerID);
+                }
+                if (startDate != null && endDate != null) {
+                    queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");
+                    queryParams.put("startDate", startDate);
+                    queryParams.put("endDate", endDate);
+                }
+            }
+            
+            if (isBroker ){
+                queryString.append(" order by (sellerBrokerage+buyerBrokerage) desc");
+            } else {
+                queryString.append(" order by (basicPrice*qty) desc");
+            }
+            Query query = em.createQuery(queryString.toString());
+            for (String param : queryParams.keySet()) {
+                query.setParameter(param, queryParams.get(param));
+            }
+            List<Lead> leads = query.getResultList();
+            List<Lead> finalLeads = new ArrayList<Lead>(leads.size());
+
+            if (!leads.isEmpty()) {
+                List<Integer> userIDs = new ArrayList<Integer>();
+                for (Lead lead : leads) {
+                    userIDs.add(lead.getCreatedUserID());
+                    userIDs.add(lead.getBrokerID());
+                    if (lead.getAssignedToUserID() != null) {
+                        userIDs.add(lead.getAssignedToUserID());
+                    }
+                }
+                Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                        .setParameter("userIDs", userIDs);
+                List<User> users = userQuery.getResultList();
+                Map<Integer, User> usersMap = new HashMap();
+                for (User user : users) {
+                    usersMap.put(user.getUserID(), user);
+                }
+                for (Lead lead : leads) {
+                    lead.setBroker(usersMap.get(lead.getBrokerID()));
+                    if (lead.getAssignedToUserID() != null) {
+                        lead.setAssignedToUser(usersMap.get(lead.getAssignedToUserID()));
+                    }
+                    lead.setCreatedUser(usersMap.get(lead.getCreatedUserID()));
+                    if (isBroker && StringUtils.isNotBlank(brokerageStatus)) {
+                        LeadStatusHistory leadStatusHistory = em.find(LeadStatusHistory.class, lead.getLeadID());
+                        if (brokerageStatus.equalsIgnoreCase("pending")
+                                && leadStatusHistory.getPaymentReceivedDateTime() == null) {
+                            finalLeads.add(lead);
+                        } else if (brokerageStatus.equalsIgnoreCase("received")
+                                && leadStatusHistory.getPaymentReceivedDateTime() != null) {
+                            finalLeads.add(lead);
+                        }
+                    } else {
+                        finalLeads.add(lead);
+                    }
+                }
+
+            }
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(finalLeads);
+            return messageDTO;
+        } catch (Exception e) {
+            logger.info(LeadServiceBean.class + " saveLead() : ERROR: " + e.toString());
+        }
+
+        return MessageDTO.getFailureDTO();
+    }
+
+    @Override
     public MessageDTO getLeadsByBroker(Integer brokerID, String type, String status, Date startDate, Date endDate) {
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
@@ -508,8 +624,8 @@ public class LeadServiceBean implements LeadService {
 //                queryString.append(" AND l.currentStatus= :currentStatus");
 //                queryParams.put("currentStatus", status);ghjgh
 //            }
-            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus() 
-                    + "," + LeadCurrentStatus.Waiting.getStatus() 
+            String includeStatus = "" + LeadCurrentStatus.Accepted.getStatus()
+                    + "," + LeadCurrentStatus.Waiting.getStatus()
                     + "," + LeadCurrentStatus.Reverted.getStatus()
                     + "," + LeadCurrentStatus.Rejected.getStatus();
             List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
@@ -674,8 +790,7 @@ public class LeadServiceBean implements LeadService {
                     || key.equals("asPerAvailablity")
                     || key.toLowerCase().equals("broker")
                     || key.toLowerCase().equals("seller")
-                    || key.toLowerCase().equals("buyer")
-                    ) {
+                    || key.toLowerCase().equals("buyer")) {
                 continue;
             }
             if (!Objects.equals(prevLeadMap.get(key), nweLeadMap.get(key))) {

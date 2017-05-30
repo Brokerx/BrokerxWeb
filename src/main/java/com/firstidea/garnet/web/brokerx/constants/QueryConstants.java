@@ -69,39 +69,51 @@ public interface QueryConstants {
 
     String GET_USER_COUNT_BY_MOBILE = "SELECT count(*) From User "
             + " WHERE Mobile=:mobile";
-    
+
     String GET_USER_COUNT_BY_EMAIL = "SELECT count(*) FROM User  "
             + " WHERE Email=:email";
-    
+
     String GET_USER_CHATS = "SELECT uc FROM Chat uc "
             + " WHERE uc.fromUserID IN (:fromUserID) "
             + " AND uc.toUserID IN (:toUserID) "
             + " AND uc.leadID = :leadID"
             + " ORDER BY uc.createdDttm DESC";
-    
+
     String GET_NOTIFICATIONS_BY_USERID = "SELECT n from Notification n WHERE n.toUserID=:userID"
             + " ORDER BY n.createdDttm DESC";
-    
+
     String UPDATE_NOTIFICATION_READ_FLAG_BY_USERID = "UPDATE Notification SET IsRead=true WHERE ToUserID=:userID"
             + " AND IsRead=false";
-    
+
     String UPDATE_LEAD_ID_IN_CHAT_ON_DEAL_DONE = "Update Chat SET LeadID=:newLeadID WHERE LeadID=:oldLeadID";
-    
+
     String UPDATE_LEAD_ID_IN_CHAT_SUMMARY_ON_DEAL_DONE = "Update ChatSummary SET LeadID=:newLeadID WHERE LeadID=:oldLeadID";
-    
+
     String UPDATE_CHAT_SUMMARY_BY_USERS_N_LEAD = "Update ChatSummary SET LastMsg=:msg, LastMsgType=:msgType, LastMsgDateTime=now()"
             + " WHERE LeadID=:leadID AND (FromUserID=:fromUserID and ToUserID=:toUserID) OR (FromUserID=:toUserID  and ToUserID=:fromUserID)";
-    
+
     String GET_UNREAD_NOTIFICATION_COUNT_BY_USERID = "SELECT count(*) from Notification n WHERE ToUserID=:userID"
             + " AND IsRead=false";
-    
+
     String GET_CHAT_SUMMARY_BY_USERS_ID = "SELECT cs FROM ChatSummary cs "
             + " WHERE cs.fromUserID=:userID OR cs.toUserID=:userID"
             + " ORDER BY cs.lastMsgDateTime DESC";
-    
-    String GET_DISTINCT_ITEMS_USER_DEALS_WITH = "SELECT distinct(ItemName) FROM Lead where (CreatedUserID=:userID OR AssignedToUserID=:userID) AND BuyerStatus='D';";
-    
-    String GET_SELLERS_BY_USERID = "Select distinct(CreatedUserID) from Lead where `Type`='S' and AssignedToUserID=:userID AND BuyerStatus='D'";
-    
-    String GET_BUYER_BY_USERID = "Select distinct(AssignedToUserID) from Lead where `Type`='B' and CreatedUserID=:userID AND BuyerStatus='D'";
+
+    String GET_DISTINCT_ITEMS_USER_DEALS_WITH = "SELECT distinct(ItemName) FROM Lead where (BrokerID=:userID OR CreatedUserID=:userID OR AssignedToUserID=:userID) AND BuyerStatus='D';";
+
+    String GET_SELLERS_BY_USERID = "Select distinct(CreatedUserID) from Lead where `Type`='S' and AssignedToUserID=:userID AND BuyerStatus='D'\n"
+            + " UNION ALL "
+            + "Select distinct(AssignedToUserID) from Lead where `Type`='B' and CreatedUserID=:userID AND BuyerStatus='D'";
+
+    String GET_BUYER_BY_USERID = "Select distinct(AssignedToUserID) from Lead where `Type`='S' and CreatedUserID=:userID AND BuyerStatus='D' "
+            + " UNION ALL "
+            + " Select distinct(CreatedUserID) from Lead where `Type`='B' and AssignedToUserID=:userID AND BuyerStatus='D'";
+
+    String GET_SELLERS_BY_BROKERID = "Select distinct(CreatedUserID) from Lead where `Type`='S' and BrokerID=:userID AND BuyerStatus='D' "
+            + " UNION ALL "
+            + " SELECT distinct(AssignedToUserID) from Lead where `Type`='B' and BrokerID=:userID AND BuyerStatus='D'";
+
+    String GET_BUYER_BY_BROKERID = "Select distinct(CreatedUserID) from Lead where `Type`='B' and BrokerID=:userID AND BuyerStatus='D'\n"
+            + " UNION ALL "
+            + " Select distinct(AssignedToUserID) from Lead where `Type`='S' and BrokerID=:userID AND BuyerStatus='D'";
 }
