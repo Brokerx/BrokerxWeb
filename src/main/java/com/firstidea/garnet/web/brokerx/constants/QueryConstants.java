@@ -116,4 +116,31 @@ public interface QueryConstants {
     String GET_BUYER_BY_BROKERID = "Select distinct(CreatedUserID) from Lead where `Type`='B' and BrokerID=:userID AND BuyerStatus='D'\n"
             + " UNION ALL "
             + " Select distinct(AssignedToUserID) from Lead where `Type`='S' and BrokerID=:userID AND BuyerStatus='D'";
+
+    String GET_USERS_BY_TYPE = "SELECT u FROM User u WHERE u.isBroker=:isBroker";
+
+    String GET_USERS_BUYER_DEAL_STATUS_COUNT = "SELECT CreatedUserID,BuyerStatus,count(BuyerStatus) from Lead "
+            + " WHERE Type='B' and CreatedUserID in (:userIDs) AND BuyerStatus <> 'L'"
+            + " GROUP BY CreatedUserID,BuyerStatus "
+            + " UNION All "
+            + " SELECT AssignedToUserID,BuyerStatus,count(BuyerStatus) from Lead"
+            + " WHERE Type='S' and AssignedToUserID in (:userIDs) AND BuyerStatus <> 'L'"
+            + " GROUP by AssignedToUserID,BuyerStatus ";
+
+    String GET_USERS_SELLER_DEAL_STATUS_COUNT = "SELECT CreatedUserID,SellerStatus,count(SellerStatus) from Lead "
+            + " WHERE Type='S' and CreatedUserID in (:userIDs) AND SellerStatus <> 'L' "
+            + " GROUP BY CreatedUserID,SellerStatus "
+            + " UNION ALL "
+            + " SELECT AssignedToUserID,SellerStatus,count(SellerStatus) from Lead "
+            + " WHERE Type='B' and AssignedToUserID in(:userIDs) AND SellerStatus <> 'L' "
+            + " GROUP BY AssignedToUserID,SellerStatus";
+    
+    String GET_BROKERS_BUYER_DEAL_STATUS_COUNT = "SELECT BrokerID,BrokerStatus,count(BrokerStatus) from Lead "
+            + " WHERE Type='B' and BrokerID in (:userIDs) AND BuyerStatus <> 'L'"
+            + " GROUP BY BrokerID,BrokerStatus ";
+
+    String GET_BROKERS_SELLER_DEAL_STATUS_COUNT = "SELECT BrokerID,BrokerStatus,count(BrokerStatus) from Lead "
+            + " WHERE Type='S' and BrokerID in (:userIDs) AND BuyerStatus <> 'L'"
+            + " GROUP BY BrokerID,BrokerStatus ";
+
 }

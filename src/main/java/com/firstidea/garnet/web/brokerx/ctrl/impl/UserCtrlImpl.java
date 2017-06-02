@@ -83,4 +83,10 @@ public class UserCtrlImpl extends Authentication implements UserCtrl {
         return JsonConverter.createJson(registerResponseDTO);
     }
 
+    @Override
+    public String getUsers(String userType, String startDate, String endDate) {
+        MessageDTO userResponseDTO = userService.getUsers(userType, null, null);
+        return JsonConverter.createJson(userResponseDTO);
+    }
+
 }

@@ -149,4 +149,13 @@ public class UserResource extends AppResource {
     public String getAnalysisDropDownValues(@FormParam("userID") Integer userID) {
         return userCtrl.getAnalysisDropDownValues(userID);
     }
+    
+    @POST
+    @Produces("application/json")
+    @Path("/getUsers")
+    public String getUsers(@FormParam("userType") String userType,
+            @FormParam("startDate") String startDate,
+            @FormParam("endDate") String endDate) {
+        return userCtrl.getUsers(userType, startDate, endDate);
+    }
 }

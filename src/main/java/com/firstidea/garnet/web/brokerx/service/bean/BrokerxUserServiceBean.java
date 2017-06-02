@@ -9,9 +9,12 @@ import com.firstidea.garnet.web.brokerx.admin.ApplicationUser;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
 import com.firstidea.garnet.web.brokerx.dto.DropDownValuesDTO;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
+import com.firstidea.garnet.web.brokerx.dto.UserDTO;
+import com.firstidea.garnet.web.brokerx.entity.Lead;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.entity.UserConnection;
 import com.firstidea.garnet.web.brokerx.enums.ConnectionStatus;
+import com.firstidea.garnet.web.brokerx.enums.LeadCurrentStatus;
 import com.firstidea.garnet.web.brokerx.filehandling.FileUploadHelper;
 import com.firstidea.garnet.web.brokerx.service.BrokerxUserService;
 import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
@@ -329,15 +332,117 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
     @Override
     public MessageDTO getUsers(String userType, Date startDate, Date endDate) {
         try {
-            MessageDTO messageDTO;
-//            User user = em.find(User.class, brokerID);
-//            if (user != null) {
-//                user.setBrokerDealsInItems(items);
-//                em.merge(user);
-//                messageDTO = MessageDTO.getSuccessDTO();
-//                messageDTO.setData(user);
-//                return messageDTO;
-//            }
+            Boolean isBroker = userType.equals("broker");
+            Query query = em.createQuery(QueryConstants.GET_USERS_BY_TYPE)
+                    .setParameter("isBroker", isBroker);
+            List<User> users = query.getResultList();
+            List<Integer> userIDs = new ArrayList<Integer>();
+            for (User user : users) {
+                userIDs.add(user.getUserID());
+            }
+            List<Object[]> buyerStatusCounts, sellerStatusCounts;
+            if (isBroker) {
+                Query buyerStatusQuery = em.createNativeQuery(QueryConstants.GET_BROKERS_BUYER_DEAL_STATUS_COUNT)
+                        .setParameter("userIDs", userIDs);
+                buyerStatusCounts = buyerStatusQuery.getResultList();
+
+                Query sellerStatusQuery = em.createNativeQuery(QueryConstants.GET_BROKERS_SELLER_DEAL_STATUS_COUNT)
+                        .setParameter("userIDs", userIDs);
+                sellerStatusCounts = sellerStatusQuery.getResultList();
+            } else {
+                Query buyerStatusQuery = em.createNativeQuery(QueryConstants.GET_USERS_BUYER_DEAL_STATUS_COUNT)
+                        .setParameter("userIDs", userIDs);
+                buyerStatusCounts = buyerStatusQuery.getResultList();
+
+                Query sellerStatusQuery = em.createNativeQuery(QueryConstants.GET_USERS_SELLER_DEAL_STATUS_COUNT)
+                        .setParameter("userIDs", userIDs);
+                sellerStatusCounts = sellerStatusQuery.getResultList();
+            }
+            Map<Integer, Integer> buyerActiveDealsCount = new HashMap();
+            Map<Integer, Integer> buyerPendingDealsCount = new HashMap();
+            Map<Integer, Integer> buyerDoneDealsCount = new HashMap();
+            Map<Integer, Integer> buyerRejectedDealsCount = new HashMap();
+            Map<Integer, Integer> sellerActiveDealsCount = new HashMap();
+            Map<Integer, Integer> sellerPendingDealsCount = new HashMap();
+            Map<Integer, Integer> sellerDoneDealsCount = new HashMap();
+            Map<Integer, Integer> sellerRejectedDealsCount = new HashMap();
+            for (Object[] buyerStatus : buyerStatusCounts) {
+                Integer userID = (Integer) buyerStatus[0];
+                String status = buyerStatus[1].toString();
+                Integer count = ((BigInteger) buyerStatus[2]).intValue();
+                if (status.equals(LeadCurrentStatus.Pending.getStatus())) {
+                    buyerPendingDealsCount.put(userID, count);
+                } else if (status.equals(LeadCurrentStatus.Rejected.getStatus())) {
+                    buyerRejectedDealsCount.put(userID, count);
+                } else if (status.equals(LeadCurrentStatus.Done.getStatus())) {
+                    buyerDoneDealsCount.put(userID, count);
+                } else {
+                    buyerActiveDealsCount.put(userID, count);
+                }
+            }
+            for (Object[] sellerStatus : sellerStatusCounts) {
+                Integer userID = (Integer) sellerStatus[0];
+                String status = sellerStatus[1].toString();
+                Integer count = ((BigInteger) sellerStatus[2]).intValue();
+                if (status.equals(LeadCurrentStatus.Pending.getStatus())) {
+                    sellerPendingDealsCount.put(userID, count);
+                } else if (status.equals(LeadCurrentStatus.Rejected.getStatus())) {
+                    buyerRejectedDealsCount.put(userID, count);
+                } else if (status.equals(LeadCurrentStatus.Done.getStatus())) {
+                    sellerDoneDealsCount.put(userID, count);
+                } else {
+                    sellerActiveDealsCount.put(userID, count);
+                }
+            }
+            List<UserDTO> userDTOs = new ArrayList<UserDTO>(users.size());
+            for (User user : users) {
+                UserDTO userDTO = new UserDTO();
+                userDTO.setUserInfo(user);
+                if (buyerActiveDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setBuyerActiveDealsCount(buyerActiveDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setBuyerActiveDealsCount(0);
+                }
+                if (buyerPendingDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setBuyerPendingDealsCount(buyerPendingDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setBuyerPendingDealsCount(0);
+                }
+                if (buyerDoneDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setBuyerDoneDealsCount(buyerDoneDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setBuyerDoneDealsCount(0);
+                }
+                if (buyerRejectedDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setBuyerRejectedDealsCount(buyerRejectedDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setBuyerRejectedDealsCount(0);
+                }
+                if (sellerActiveDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setSellerActiveDealsCount(sellerActiveDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setSellerActiveDealsCount(0);
+                }
+                if (sellerPendingDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setSellerPendingDealsCount(sellerPendingDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setSellerPendingDealsCount(0);
+                }
+                if (sellerDoneDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setSellerDoneDealsCount(sellerDoneDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setSellerDoneDealsCount(0);
+                }
+                if (sellerRejectedDealsCount.containsKey(user.getUserID())) {
+                    userDTO.setSellerRejectedDealsCount(sellerRejectedDealsCount.get(user.getUserID()));
+                } else {
+                    userDTO.setSellerRejectedDealsCount(0);
+                }
+                userDTOs.add(userDTO);
+            }
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(userDTOs);
+            return messageDTO;
         } catch (Exception e) {
             logger.error(BrokerxUserServiceBean.class + " updateBrokerDealsInItems() : ERROR " + e.toString());
         }
@@ -350,7 +455,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
             MessageDTO messageDTO;
             User user = em.find(User.class, userID);
             DropDownValuesDTO downValuesDTO = new DropDownValuesDTO();
-            List<Integer> buyerIDs,sellerIDs;
+            List<Integer> buyerIDs, sellerIDs;
             if (user.getIsBroker()) {
                 Query buyerListQuery = em.createNativeQuery(QueryConstants.GET_BUYER_BY_BROKERID)
                         .setParameter("userID", userID);
