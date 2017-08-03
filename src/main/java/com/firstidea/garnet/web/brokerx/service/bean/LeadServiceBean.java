@@ -514,7 +514,8 @@ public class LeadServiceBean implements LeadService {
                         queryParams.put("assignedToUserID", otherUserID);
                     }
                 } else {
-                    queryString.append(" AND l.createdUserID= :createdUserID");
+                    queryString.append(" AND (l.createdUserID= :createdUserID");
+                    queryString.append(" OR l.assignedToUserID= :createdUserID)");
                     queryParams.put("createdUserID", userID);
                     if (otherUserID != null && otherUserID > 0) {
                         queryString.append(" AND l.assignedToUserID= :assignedToUserID");
