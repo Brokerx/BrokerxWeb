@@ -234,6 +234,7 @@ public class LeadServiceBean implements LeadService {
             childLead.setBuyerStatus(LeadCurrentStatus.Done.getStatus());
             childLead.setSellerStatus(LeadCurrentStatus.Done.getStatus());
             childLead.setBrokerStatus(LeadCurrentStatus.Done.getStatus());
+            childLead.setDealDoneDttm(ApptDateUtils.getCurrentDateAndTime());
             childLead.setAssignedToUserID(childLead.getCreatedUserID());
             childLead.setCreatedUserID(parentLead.getCreatedUserID());
             childLead.setType(parentLead.getType());
@@ -368,7 +369,7 @@ public class LeadServiceBean implements LeadService {
                 queryParams.put("createdUserID", userID);
             }
             if (startDate != null && endDate != null) {
-                queryString.append(" AND l.createdDttm BETWEEN :startDate AND :endDate");
+                queryString.append(" AND l.dealDoneDttm BETWEEN :startDate AND :endDate");
                 queryParams.put("startDate", startDate);
                 queryParams.put("endDate", endDate);
             }
@@ -762,6 +763,8 @@ public class LeadServiceBean implements LeadService {
         leadHistory.setQty(lead.getQty());
         leadHistory.setQtyUnit(lead.getQtyUnit());
         leadHistory.setTransportCharges(lead.getTransportCharges());
+        leadHistory.setGstType(lead.getGstType());
+        leadHistory.setTax(lead.getTax());
         return leadHistory;
     }
 

@@ -118,6 +118,9 @@ public class AnalysisServiceBean implements AnalysisService {
             }
             query.setParameter("brokerID", brokerID);
             BigDecimal buyerAmount = (BigDecimal) query.getSingleResult();
+            if(buyerAmount == null) {
+                buyerAmount = BigDecimal.ZERO;
+            }
 
             String sellerQueryString = QueryConstants.GET_TOTAL_SELLER_BROKERAGE_BY_BROKERID;
 
@@ -133,6 +136,9 @@ public class AnalysisServiceBean implements AnalysisService {
             }
             sellerQuery.setParameter("brokerID", brokerID);
             BigDecimal sellerAmount = (BigDecimal) sellerQuery.getSingleResult();
+            if (sellerAmount == null) {
+                sellerAmount = BigDecimal.ZERO;
+            }
 
             String amount = buyerAmount.toString() + "|" + sellerAmount.toString();
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();

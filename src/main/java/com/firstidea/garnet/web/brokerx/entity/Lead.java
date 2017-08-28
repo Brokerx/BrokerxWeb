@@ -87,6 +87,8 @@ public class Lead implements Serializable {
     private Integer basicPriceUnit;
     @Column(name = "Excisetype")
     private Integer excisetype;
+    @Column(name = "GSTType")
+    private Integer gstType;
     @Column(name = "Tax")
     private BigDecimal tax;
     @Column(name = "ExciseDuty")
@@ -120,6 +122,9 @@ public class Lead implements Serializable {
     @Size(max = 100)
     @Column(name = "Comments")
     private String comments;
+    @Column(name = "DealDoneDttm")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dealDoneDttm;
     @Column(name = "CreatedDttm")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDttm;
@@ -298,6 +303,14 @@ public class Lead implements Serializable {
         this.basicPrice = basicPrice;
     }
 
+    public Integer getGstType() {
+        return gstType;
+    }
+
+    public void setGstType(Integer gstType) {
+        this.gstType = gstType;
+    }
+
     public Integer getExcisetype() {
         return excisetype;
     }
@@ -424,6 +437,14 @@ public class Lead implements Serializable {
 
     public void setComments(String comments) {
         this.comments = comments;
+    }
+
+    public Date getDealDoneDttm() {
+        return dealDoneDttm;
+    }
+
+    public void setDealDoneDttm(Date dealDoneDttm) {
+        this.dealDoneDttm = dealDoneDttm;
     }
 
     public Date getCreatedDttm() {

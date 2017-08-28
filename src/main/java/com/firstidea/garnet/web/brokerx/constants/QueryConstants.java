@@ -90,7 +90,7 @@ public interface QueryConstants {
     String UPDATE_LEAD_ID_IN_CHAT_SUMMARY_ON_DEAL_DONE = "Update ChatSummary SET LeadID=:newLeadID WHERE LeadID=:oldLeadID";
 
     String UPDATE_CHAT_SUMMARY_BY_USERS_N_LEAD = "Update ChatSummary SET LastMsg=:msg, LastMsgType=:msgType, LastMsgDateTime=now()"
-            + " WHERE LeadID=:leadID AND (FromUserID=:fromUserID and ToUserID=:toUserID) OR (FromUserID=:toUserID  and ToUserID=:fromUserID)";
+            + " WHERE LeadID=:leadID AND ((FromUserID=:fromUserID and ToUserID=:toUserID) OR (FromUserID=:toUserID  and ToUserID=:fromUserID))";
 
     String GET_UNREAD_NOTIFICATION_COUNT_BY_USERID = "SELECT count(*) from Notification n WHERE ToUserID=:userID"
             + " AND IsRead=false";

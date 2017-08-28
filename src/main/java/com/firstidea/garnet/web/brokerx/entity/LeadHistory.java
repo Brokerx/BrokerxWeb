@@ -80,6 +80,8 @@ public class LeadHistory implements Serializable {
     private BigDecimal basicPrice;
     @Column(name = "Excisetype")
     private Integer excisetype;
+    @Column(name = "GSTType")
+    private Integer gstType;
     @Column(name = "Tax")
     private BigDecimal tax;
     @Column(name = "ExciseDuty")
@@ -261,6 +263,14 @@ public class LeadHistory implements Serializable {
 
     public void setExcisetype(Integer excisetype) {
         this.excisetype = excisetype;
+    }
+
+    public Integer getGstType() {
+        return gstType;
+    }
+
+    public void setGstType(Integer gstType) {
+        this.gstType = gstType;
     }
 
     public BigDecimal getTax() {
