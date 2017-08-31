@@ -60,6 +60,28 @@ public class LeadServiceBean implements LeadService {
                 prevLead = em.find(Lead.class, lead.getLeadID());
                 fieldsAltered = getFieldsAltered(prevLead, lead);
                 lead = em.merge(lead);
+                // if deal is rejected then reject its parent/child lead
+                if ((lead.getBuyerStatus() != null && lead.getBuyerStatus().equals(LeadCurrentStatus.Rejected.getStatus()))
+                        || (lead.getBrokerStatus() != null && lead.getBrokerStatus().equals(LeadCurrentStatus.Rejected.getStatus()))
+                        || (lead.getSellerStatus() != null && lead.getSellerStatus().equals(LeadCurrentStatus.Rejected.getStatus()))) {
+                    if (lead.getParentLeadID() != null) {
+                        Lead parentLead = em.find(Lead.class, lead.getParentLeadID());
+                        parentLead.setBuyerStatus(LeadCurrentStatus.Rejected.getStatus());
+                        parentLead.setBrokerStatus(LeadCurrentStatus.Rejected.getStatus());
+                        parentLead.setSellerStatus(LeadCurrentStatus.Rejected.getStatus());
+                        em.merge(parentLead);
+                    } else {
+                        Query query = em.createQuery(QueryConstants.GET_LEAD_BY_PARENT_LEADID)
+                                .setParameter("parentLeadID", lead.getLeadID());
+                        Lead childLead = (Lead) query.getSingleResult();
+                        if(childLead != null) {
+                            childLead.setBuyerStatus(LeadCurrentStatus.Rejected.getStatus());
+                            childLead.setBrokerStatus(LeadCurrentStatus.Rejected.getStatus());
+                            childLead.setSellerStatus(LeadCurrentStatus.Rejected.getStatus());
+                            em.merge(childLead);
+                        }
+                    }
+                }
             } else {
                 lead.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
                 if (lead.getParentLeadID() != null) {
@@ -136,6 +158,7 @@ public class LeadServiceBean implements LeadService {
             notification.setType(NotificationType.LEAD_REVERTED.getNotificationType());
         }
         notification.setIsRead(false);
+        notification.setIsDeleted(false);
         notification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(notification);
 
@@ -163,6 +186,7 @@ public class LeadServiceBean implements LeadService {
         }
         notification.setItemName(lead.getItemName());
         notification.setIsRead(false);
+        notification.setIsDeleted(false);
         notification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         if (lead.getLastUpdUserID().equals(createdUser.getUserID())) {
             gcmKey = broker.getGcmKey();
@@ -267,6 +291,16 @@ public class LeadServiceBean implements LeadService {
             int chatsSummaryUpdateCount = chatSummaryUpdatequery.executeUpdate();
 
             childLead = em.merge(childLead);
+            
+            List<Integer> leadIds = new ArrayList<Integer>();
+            leadIds.add(childLead.getLeadID());
+            leadIds.add(parentLead.getLeadID());
+                   
+            Query deleteNotificationQuery = em.createNativeQuery(QueryConstants.DELETE_NOTIFICATION_BY_LEADIDS)
+                    .setParameter("leadIDS", leadIds);
+            
+            int notificationRowsCount = deleteNotificationQuery.executeUpdate();
+            
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(childLead);
             sendDealDoneNotification(childLead);
@@ -326,6 +360,7 @@ public class LeadServiceBean implements LeadService {
         buyerNotification.setMessage(message);
         buyerNotification.setType(type);
         buyerNotification.setIsRead(false);
+        buyerNotification.setIsDeleted(false);
         buyerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(buyerNotification);
 
@@ -338,6 +373,7 @@ public class LeadServiceBean implements LeadService {
         brokerNotification.setMessage(message);
         brokerNotification.setType(type);
         brokerNotification.setIsRead(false);
+        brokerNotification.setIsDeleted(false);
         brokerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(brokerNotification);
 
@@ -901,6 +937,7 @@ public class LeadServiceBean implements LeadService {
         createdUserNotification.setMessage("Deal Done");
         createdUserNotification.setType(NotificationType.DEAL_DONE.getNotificationType());
         createdUserNotification.setIsRead(false);
+        createdUserNotification.setIsDeleted(false);
         createdUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(createdUserNotification);
 
@@ -913,10 +950,20 @@ public class LeadServiceBean implements LeadService {
         assignedUserNotification.setMessage("Deal Done");
         assignedUserNotification.setType(NotificationType.DEAL_DONE.getNotificationType());
         assignedUserNotification.setIsRead(false);
+        assignedUserNotification.setIsDeleted(false);
         assignedUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
         em.persist(assignedUserNotification);
 
-        sendPushNotification(usersMap.get(lead.getCreatedUserID()).getGcmKey(), createdUsername, createdUserNotification);
-        sendPushNotification(usersMap.get(lead.getAssignedToUserID()).getGcmKey(), createdUsername, assignedUserNotification);
+        sendDealDonePushNotification(usersMap.get(lead.getCreatedUserID()).getGcmKey(), createdUsername, createdUserNotification);
+        sendDealDonePushNotification(usersMap.get(lead.getAssignedToUserID()).getGcmKey(), createdUsername, assignedUserNotification);
     }
+    
+    private void sendDealDonePushNotification(String gcmKey, String userName, Notification notification) {
+        String type = GCMUtils.TYPE_DEAL_DONE;
+        if (StringUtils.isNotBlank(gcmKey)) {
+            String payload = JsonConverter.createJson(notification);
+            GCMUtils.sendNotification(gcmKey, userName, type, payload);
+        }
+    }
+
 }

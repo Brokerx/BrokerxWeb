@@ -34,6 +34,9 @@ public interface QueryConstants {
 
     String GET_LEAD_DOCUMENTS_BY_LEADID = "SELECT ld FROM LeadDocument ld"
             + " WHERE ld.leadID=:leadID";
+    
+    String GET_LEAD_BY_PARENT_LEADID = "SELECT ld FROM Lead ld"
+            + " WHERE ld.parentLeadID=:parentLeadID";
 
     String GET_BROKER_TOP_HIGHEST_PAYING_LEADS = "Select LeadID,(BuyerBrokerage+SellerBrokerage) as Brokerage from Lead "
             + " WHERE BrokerStatus='D' AND BrokerID= :brokerID %s"
@@ -80,6 +83,7 @@ public interface QueryConstants {
             + " ORDER BY uc.createdDttm DESC";
 
     String GET_NOTIFICATIONS_BY_USERID = "SELECT n from Notification n WHERE n.toUserID=:userID"
+            + " AND n.isDeleted != true "
             + " ORDER BY n.createdDttm DESC";
 
     String UPDATE_NOTIFICATION_READ_FLAG_BY_USERID = "UPDATE Notification SET IsRead=true WHERE ToUserID=:userID"
@@ -93,7 +97,11 @@ public interface QueryConstants {
             + " WHERE LeadID=:leadID AND ((FromUserID=:fromUserID and ToUserID=:toUserID) OR (FromUserID=:toUserID  and ToUserID=:fromUserID))";
 
     String GET_UNREAD_NOTIFICATION_COUNT_BY_USERID = "SELECT count(*) from Notification n WHERE ToUserID=:userID"
+            + " AND n.isDeleted != true "
             + " AND IsRead=false";
+
+    String DELETE_NOTIFICATION_BY_LEADIDS = "UPDATE Notification SET IsDeleted=true"
+            + " WHERE LeadID IN (:leadIDS)";
 
     String GET_CHAT_SUMMARY_BY_USERS_ID = "SELECT cs FROM ChatSummary cs "
             + " WHERE cs.fromUserID=:userID OR cs.toUserID=:userID"
