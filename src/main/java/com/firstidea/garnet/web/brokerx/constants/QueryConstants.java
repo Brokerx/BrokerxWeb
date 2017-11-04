@@ -34,7 +34,7 @@ public interface QueryConstants {
 
     String GET_LEAD_DOCUMENTS_BY_LEADID = "SELECT ld FROM LeadDocument ld"
             + " WHERE ld.leadID=:leadID";
-    
+
     String GET_LEAD_BY_PARENT_LEADID = "SELECT ld FROM Lead ld"
             + " WHERE ld.parentLeadID=:parentLeadID";
 
@@ -109,7 +109,7 @@ public interface QueryConstants {
 
     String GET_DISTINCT_ITEMS_USER_DEALS_WITH = "SELECT distinct(ItemName) FROM Lead where (BrokerID=:userID OR CreatedUserID=:userID OR AssignedToUserID=:userID) AND BuyerStatus='D';";
 
-    String GET_SELLERS_BY_USERID = "Select distinct(CreatedUserID) from Lead where `Type`='S' and AssignedToUserID=:userID AND BuyerStatus='D'\n"
+    String GET_SELLERS_BY_USERID = "Select distinct(CreatedUserID) from Lead where `Type`='S' and AssignedToUserID=:userID AND BuyerStatus='D' "
             + " UNION ALL "
             + "Select distinct(AssignedToUserID) from Lead where `Type`='B' and CreatedUserID=:userID AND BuyerStatus='D'";
 
@@ -121,7 +121,7 @@ public interface QueryConstants {
             + " UNION ALL "
             + " SELECT distinct(AssignedToUserID) from Lead where `Type`='B' and BrokerID=:userID AND BuyerStatus='D'";
 
-    String GET_BUYER_BY_BROKERID = "Select distinct(CreatedUserID) from Lead where `Type`='B' and BrokerID=:userID AND BuyerStatus='D'\n"
+    String GET_BUYER_BY_BROKERID = "Select distinct(CreatedUserID) from Lead where `Type`='B' and BrokerID=:userID AND BuyerStatus='D' "
             + " UNION ALL "
             + " Select distinct(AssignedToUserID) from Lead where `Type`='S' and BrokerID=:userID AND BuyerStatus='D'";
 
@@ -142,7 +142,7 @@ public interface QueryConstants {
             + " SELECT AssignedToUserID,SellerStatus,count(SellerStatus) from Lead "
             + " WHERE Type='B' and AssignedToUserID in(:userIDs) AND SellerStatus <> 'L' "
             + " GROUP BY AssignedToUserID,SellerStatus";
-    
+
     String GET_BROKERS_BUYER_DEAL_STATUS_COUNT = "SELECT BrokerID,BrokerStatus,count(BrokerStatus) from Lead "
             + " WHERE Type='B' and BrokerID in (:userIDs) AND BuyerStatus <> 'L'"
             + " GROUP BY BrokerID,BrokerStatus ";
@@ -151,4 +151,18 @@ public interface QueryConstants {
             + " WHERE Type='S' and BrokerID in (:userIDs) AND BuyerStatus <> 'L'"
             + " GROUP BY BrokerID,BrokerStatus ";
 
+    String GET_BROKER_EARNINGS = "SELECT BrokerID,sum(BuyerBrokerage+SellerBrokerage) as amount FROM Brokerx.Lead "
+            + " WHERE BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by BrokerID ";
+
+    String GET_BUYER_SPENDING = "SELECT CreatedUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
+            + " where Type='B' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by CreatedUserID  "
+            + " UNION ALL "
+            + " SELECT AssignedToUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
+            + " where Type='S' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by AssignedToUserID";
+    
+    String GET_SELLER_EARNING = "SELECT CreatedUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
+            + " where Type='S' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by CreatedUserID  "
+            + " UNION ALL "
+            + " SELECT AssignedToUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
+            + " where Type='S' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by AssignedToUserID";
 }

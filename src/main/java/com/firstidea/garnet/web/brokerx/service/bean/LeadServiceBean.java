@@ -14,6 +14,7 @@ import com.firstidea.garnet.web.brokerx.entity.LeadStatusHistory;
 import com.firstidea.garnet.web.brokerx.entity.Notification;
 import com.firstidea.garnet.web.brokerx.entity.User;
 import com.firstidea.garnet.web.brokerx.enums.LeadCurrentStatus;
+import com.firstidea.garnet.web.brokerx.enums.NotificationCategory;
 import com.firstidea.garnet.web.brokerx.enums.NotificationType;
 import com.firstidea.garnet.web.brokerx.filehandling.FileUploadHelper;
 import com.firstidea.garnet.web.brokerx.service.LeadService;
@@ -59,6 +60,19 @@ public class LeadServiceBean implements LeadService {
             if (lead.getLeadID() != null) {
                 prevLead = em.find(Lead.class, lead.getLeadID());
                 fieldsAltered = getFieldsAltered(prevLead, lead);
+                if (lead.getIsDeleting() != null && lead.getIsDeleting()) {
+                    String prevDeleteduser = prevLead.getDeletedbyUserIDs();
+                    if(prevDeleteduser == null){
+                        prevDeleteduser = ","+lead.getDeletedbyUserIDs()+",";
+                    } else {
+                        prevDeleteduser += lead.getDeletedbyUserIDs()+",";
+                    }
+                    lead.setDeletedbyUserIDs(prevDeleteduser);
+                    lead = em.merge(lead);
+                    MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+                    messageDTO.setData(lead);
+                    return messageDTO;
+                }
                 lead = em.merge(lead);
                 // if deal is rejected then reject its parent/child lead
                 if ((lead.getBuyerStatus() != null && lead.getBuyerStatus().equals(LeadCurrentStatus.Rejected.getStatus()))
@@ -133,6 +147,7 @@ public class LeadServiceBean implements LeadService {
         notification.setFromUserID(lead.getLastUpdUserID());
         String createdUsername = "";
         String gcmKey = "";
+        notification.setCategory(lead.getType());
         if (leadHistory.getCreatedUserID() == lead.getCreatedUserID()) {
             notification.setToUserID(lead.getBrokerID());
             gcmKey = lead.getBroker().getGcmKey();
@@ -359,6 +374,7 @@ public class LeadServiceBean implements LeadService {
         buyerNotification.setItemName(lead.getItemName());
         buyerNotification.setMessage(message);
         buyerNotification.setType(type);
+        buyerNotification.setCategory(NotificationCategory.HISTORY.getNotificationCategory());
         buyerNotification.setIsRead(false);
         buyerNotification.setIsDeleted(false);
         buyerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
@@ -372,6 +388,7 @@ public class LeadServiceBean implements LeadService {
         brokerNotification.setItemName(lead.getItemName());
         brokerNotification.setMessage(message);
         brokerNotification.setType(type);
+        buyerNotification.setCategory(NotificationCategory.HISTORY.getNotificationCategory());
         brokerNotification.setIsRead(false);
         brokerNotification.setIsDeleted(false);
         brokerNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
@@ -936,6 +953,7 @@ public class LeadServiceBean implements LeadService {
         createdUserNotification.setItemName(lead.getItemName());
         createdUserNotification.setMessage("Deal Done");
         createdUserNotification.setType(NotificationType.DEAL_DONE.getNotificationType());
+        createdUserNotification.setCategory(NotificationCategory.HISTORY.getNotificationCategory());
         createdUserNotification.setIsRead(false);
         createdUserNotification.setIsDeleted(false);
         createdUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());
@@ -949,6 +967,7 @@ public class LeadServiceBean implements LeadService {
         assignedUserNotification.setItemName(lead.getItemName());
         assignedUserNotification.setMessage("Deal Done");
         assignedUserNotification.setType(NotificationType.DEAL_DONE.getNotificationType());
+        createdUserNotification.setCategory(NotificationCategory.HISTORY.getNotificationCategory());
         assignedUserNotification.setIsRead(false);
         assignedUserNotification.setIsDeleted(false);
         assignedUserNotification.setCreatedDttm(ApptDateUtils.getCurrentDateAndTime());

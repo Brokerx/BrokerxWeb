@@ -6,6 +6,7 @@
 package com.firstidea.garnet.web.brokerx.dto;
 
 import com.firstidea.garnet.web.brokerx.entity.User;
+import java.math.BigDecimal;
 
 /**
  *
@@ -22,6 +23,9 @@ public class UserDTO {
     Integer sellerPendingDealsCount;
     Integer sellerDoneDealsCount;
     Integer sellerRejectedDealsCount;
+    BigDecimal brokerEarnings;
+    BigDecimal sellerEarnings;
+    BigDecimal buyerspendings;
 
     public User getUserInfo() {
         return userInfo;
@@ -93,6 +97,30 @@ public class UserDTO {
 
     public void setSellerRejectedDealsCount(Integer sellerRejectedDealsCount) {
         this.sellerRejectedDealsCount = sellerRejectedDealsCount;
+    }
+
+    public BigDecimal getBrokerEarnings() {
+        return brokerEarnings;
+    }
+
+    public void setBrokerEarnings(BigDecimal brokerEarnings) {
+        this.brokerEarnings = brokerEarnings;
+    }
+
+    public BigDecimal getSellerEarnings() {
+        return sellerEarnings;
+    }
+
+    public void setSellerEarnings(BigDecimal sellerEarnings) {
+        this.sellerEarnings = sellerEarnings;
+    }
+
+    public BigDecimal getBuyerspendings() {
+        return buyerspendings;
+    }
+
+    public void setBuyerspendings(BigDecimal buyerspendings) {
+        this.buyerspendings = buyerspendings;
     }
 
 }

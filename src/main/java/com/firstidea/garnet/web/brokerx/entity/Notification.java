@@ -43,9 +43,13 @@ public class Notification implements Serializable {
     private Integer fromUserID;
     @Column(name = "LeadID")
     private Integer leadID;
+    @Column(name = "LeadCaretedUserID")
+    private Integer leadCaretedUserID;
     @Size(max = 5)
     @Column(name = "Type")
     private String type;
+    @Column(name = "Category")
+    private String category;
     @Size(max = 100)
     @Column(name = "ItemName")
     private String itemName;
@@ -155,6 +159,22 @@ public class Notification implements Serializable {
 
     public void setFromUser(User fromUser) {
         this.fromUser = fromUser;
+    }
+
+    public Integer getLeadCaretedUserID() {
+        return leadCaretedUserID;
+    }
+
+    public void setLeadCaretedUserID(Integer leadCaretedUserID) {
+        this.leadCaretedUserID = leadCaretedUserID;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
     @Override

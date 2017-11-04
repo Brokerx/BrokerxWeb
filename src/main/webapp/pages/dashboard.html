@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- High chart-->
+    <!--<script src="js/charts/highcharts.js"></script>
+    <script src="js/charts/exporting.js"></script>-->
+</head>
+
+<body  >
+<div class="ch-container" data-ng-init="init()" >
+    <div class="row">
+
+        <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+            <div>
+                <ul class="breadcrumb">
+                    <li>
+                        <a href="#">Reachx Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+            <div class=" row">
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <a data-toggle="tooltip" title="{{dashboardData.currentMonthUser}} New Members In Current Month" class="well top-block" href="" data-ng-click="gotoEnd()">
+                        <i class="glyphicon glyphicon-user blue"></i>
+
+                        <div>Total Members</div>
+                        <div>{{dashboardData.totalUser}}</div>
+                        <span class="notification">{{dashboardData.currentMonthUser}}</span>
+                    </a>
+                </div>
+
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <a data-toggle="tooltip" title="{{dashboardData.currentMonthProUsers}} Pro Members In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
+                        <i class="glyphicon glyphicon-star green"></i>
+
+                        <div>Pro Members</div>
+                        <div>{{dashboardData.proUsers}}</div>
+                        <span class="notification green">{{dashboardData.currentMonthProUsers}}</span>
+                    </a>
+                </div>
+
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <a data-toggle="tooltip" title="Rs. {{dashboardData.currentMonthRevenue}} In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
+                        <i class="glyphicon glyphicon-shopping-cart yellow"></i>
+
+                        <div>Total Revenue</div>
+                        <div>Rs. {{dashboardData.revenue}}</div>
+                        <span class="notification yellow">Rs. {{dashboardData.currentMonthRevenue}}</span>
+                    </a>
+                </div>
+
+                <div class="col-md-3 col-sm-3 col-xs-6">
+                    <a data-toggle="tooltip" title="{{dashboardData.currentMonthAds}} Ads In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
+                        <i class="glyphicon glyphicon-film red"></i>
+
+                        <div>Total Ads</div>
+                        <div>{{dashboardData.totalAds}}</div>
+                        <span class="notification red">{{dashboardData.currentMonthAds}}</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="box col-md-12">
+                    <div class="box-inner">
+                        <div class="box-header well">
+                            <h2><i class="glyphicon glyphicon-info-sign"></i> Users Summary Graph</h2>
+                        </div>
+                        <div id="userChartContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="box col-md-12">
+                    <div class="box-inner">
+                        <div class="box-header well">
+                            <h2><i class="glyphicon glyphicon-info-sign"></i> Advertisements Summary Graph</h2>
+                        </div>
+                        <div id="adsChartContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="box col-md-12">
+                    <div class="box-inner">
+                        <div class="box-header well">
+                            <h2><i class="glyphicon glyphicon-info-sign"></i> Wallet Recharge Summary Graph</h2>
+                        </div>
+                        <div id="rechargeChartContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+
+
+                <!--/span-->
+            </div>
+            <!--/row-->
+            <!-- content ends -->
+        </div>
+        <!--/#content.col-md-0-->
+    </div>
+    <!--/fluid-row-->
+
+    <hr>
+
+</div>
+
+</body>
+</html>
+
+

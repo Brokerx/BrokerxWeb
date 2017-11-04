@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<div class="ch-container" ng-init="init()" data-ng-controller="AddFileController">
+    <div class="row">
+        <div id="content" class="col-lg-10 col-sm-10">
+            <!-- content starts -->
+            <div>
+                <div class="row" >
+                    <!--        <div class="box col-md-12">
+                                <img src="img/Bus.jpg" style="width: 100%">
+                            </div>-->
+                    <div class="box col-md-10">
+                        <div class="box-inner" style="height: 250px;">
+                            <div class="box-header well" data-original-title="">
+                                <h2><i class="glyphicon glyphicon-edit"></i> Add New {{fileType}}</h2>
+                            </div>
+                            <div class="box-content" style="height: 100%">
+                                <form role="form" enctype="multipart/form-data">
+                                    <div class="form-group col-md-6">
+                                        <label for="title">title</label>
+                                        <input data-ng-model="newFile.title" type="text" class="form-control" id="title" placeholder="Enter Title" name="title">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="temp1" style="visibility: hidden">Name</label>
+                                        <input type="text" class="form-control" style="visibility: hidden" id="temp1" name="name">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="file">File (PDF) </label>
+                                        <input type="file" class="form-control" id="file"  name="file" accept="application/pdf"
+                                               onchange="angular.element(this).scope().onFileSelect(this)">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="temp1" style="visibility: hidden">Name</label>
+                                        <input type="text" class="form-control" style="visibility: hidden" id="temp1" name="name">
+                                    </div>
+                                    <button type="submit" class="btn btn-default" style="margin-left: 15px;" data-ng-click="saveFile()">Save</button>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- content ends -->
+        </div><!--/#content.col-md-0-->
+    </div><!--/fluid-row-->
+
+</div><!--/.fluid-container-->

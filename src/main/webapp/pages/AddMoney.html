@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <!-- The styles -->
+        <link id="bs-css" href="css/bootstrap-cerulean.min.css" rel="stylesheet">
+
+        <link href="css/charisma-app.css" rel="stylesheet">
+        <link href='bower_components/fullcalendar/dist/fullcalendar.css' rel='stylesheet'>
+        <link href='bower_components/fullcalendar/dist/fullcalendar.print.css' rel='stylesheet' media='print'>
+        <link href='bower_components/chosen/chosen.min.css' rel='stylesheet'>
+        <link href='bower_components/colorbox/example3/colorbox.css' rel='stylesheet'>
+        <link href='bower_components/responsive-tables/responsive-tables.css' rel='stylesheet'>
+        <link href='bower_components/bootstrap-tour/build/css/bootstrap-tour.min.css' rel='stylesheet'>
+        <link href='css/jquery.noty.css' rel='stylesheet'>
+        <link href='css/noty_theme_default.css' rel='stylesheet'>
+        <link href='css/elfinder.min.css' rel='stylesheet'>
+        <link href='css/elfinder.theme.css' rel='stylesheet'>
+        <link href='css/jquery.iphone.toggle.css' rel='stylesheet'>
+        <!--<link href='css/uploadify.css' rel='stylesheet'>-->
+        <link href='css/animate.min.css' rel='stylesheet'>
+
+        <!-- jQuery -->
+        <script src="bower_components/jquery/jquery.min.js"></script>
+
+        <!-- The HTML5 shim, for IE6-8 support of HTML5 elements -->
+        <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+        <![endif]-->
+
+        <!-- The fav icon -->
+        <link rel="shortcut icon" href="img/favicon.ico">
+
+    </head>
+
+    <body>
+        <div class="ch-container" dat-ng-controller='AddMoneyController' ng-init="init()">
+            <div id="content" class="col-lg-10 col-sm-10">
+                <!-- content starts -->
+                <div class="row" >
+                    <div class="box col-md-12">
+                        <div class="box-inner" style="display: inline-table;">
+                            <div class="box-header well" data-original-title="">
+                                <h2><i class="glyphicon glyphicon-edit"></i> Add Money to User's Wallet</h2>
+                            </div>
+                            <div class="box-content" style="height: 100%">
+                                <form role="form"  enctype="multipart/form-data">
+                                    <div class="form-group col-md-6">
+                                        <label for="userName">User Name</label>
+                                        <input type="text" class="form-control" id="userName"  name="userName" data-ng-model="user.fullName" disabled="">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="temp1" style="visibility: hidden">temp1</label>
+                                        <input type="text" class="form-control" style="visibility: hidden" id="temp1">
+                                    </div>
+
+                                    <!--<div class="form-group col-md-6">
+                                        <label for="iupacName">IUPAC Name </label>
+                                        <input type="text" class="form-control" id="iupacName" placeholder="Enter IUPAC Name" name="iupacName" data-ng-model="newCategory.iupacName">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="temp2" style="visibility: hidden">To </label>
+                                        <input type="text" class="form-control" id="temp2" style="visibility: hidden" >
+                                    </div>-->
+                                    <!--<div class="form-group col-md-6">
+                                        <label for="description">Description </label>
+                                        <textarea class="form-control" style="height: 200px" placeholder="Enter Description" name="contact" id="description" data-ng-model="newCategory.description"></textarea>
+                                        &lt;!&ndash;<input type="text" class="form-control" id="contact" placeholder="Enter Email" name="contact">&ndash;&gt;
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="temp3" style="visibility: hidden">To </label>
+                                        <input type="text" class="form-control" id="temp3" style="visibility: hidden;height: 200px">
+                                    </div>-->
+<!--                                    <div class="form-group col-md-6">
+                                        <label for="structureImage">Info File (PDF Only) </label>
+                                        <input type="file" class="form-control" id="structureImage"  name="image123" accept="application/pdf"
+                                               onchange="angular.element(this).scope().onFileSelect(this)" >
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="temp4" style="visibility: hidden">Temp </label>
+                                        <input type="text" class="form-control" id="temp4" style="visibility: hidden">
+                                    </div>-->
+
+                                    <div class="form-group col-md-6">
+                                        <label for="company">Company </label>
+                                        <input type="text" class="form-control" id="company"  name="company" data-ng-model="user.company" disabled>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="tmp" style="visibility: hidden">tmp </label>
+                                        <input type="text" class="form-control" id="tmp" style="visibility: hidden">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="city">City</label>
+                                        <input type="text" class="form-control" id="city"  name="city" data-ng-model="user.city" disabled>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                        <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                    </div>
+                                     <div class="form-group col-md-6">
+                                        <label for="balance">Current Wallet Balance </label>
+                                        <input type="text" class="form-control" id="balance" name="PaidInfoPrice" data-ng-model="user.walletBalance" disabled>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                        <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="amount">Amount To be Added</label>
+                                        <input type="number" class="form-control" id="amount" name="amount" data-ng-model="order.amount" min="0" step="1" required>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                        <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                    </div>
+                                    <div class="form-group col-md-12">
+                                        <label for="parentCategory">Payment Mode</label>
+
+                                        <div class="controls">
+                                            <select data-placeholder="Select Payment Mode" id="parentCategory" data-rel="chosen"
+                                                    ng-model="newCategory.parentCategoryID"
+                                                    onchange="angular.element(this).scope().setSelectedPaymentMode(this)"
+                                                    >
+                                                    <!--ng-options="category.categoryID as category.name for category in allCategories | filter: { isGroup:'true'}"
+                                                    name="parentCategory">-->
+                                                <option value=""></option>
+<!--                                                <option ng-repeat="category in allCategories | filter: { isGroup:'true'}" value="{{category.categoryID}}"
+                                                        ng-selected="{{category.categoryID == newCategory.parentCategoryID}}">{{category.name}}</option>-->
+                                                <option ng-repeat="paymentMode in allPaymentModes" value="{{paymentMode.value}}"
+                                                        >{{paymentMode.name}}</option>
+
+                                            </select>
+                                        </div>
+
+                                    </div>
+                                    <div id="ChqDetails" >
+                                        <div class="form-group col-md-6">
+                                            <label for="Param1">Cheque no</label>
+                                            <input type="number" class="form-control" id="Param1" name="Param1" data-ng-model="order.merchantParam1" min="0" step="1" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                            <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="Param2">Cheque Date</label>
+                                            <input type="date" class="form-control" id="Param2" name="Param2" data-ng-model="order.merchantParam2" min="0" step="1" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                            <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="Param3">Cheque Bank</label>
+                                            <input  class="form-control" id="Param3" name="Param3" data-ng-model="order.merchantParam3" min="0" step="1" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                            <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                        </div>
+                                    </div>
+
+                                    <div id="CshDetails" >
+                                        <div class="form-group col-md-6">
+                                            <label for="amount">Deposited At Bank</label>
+                                            <input class="form-control" id="amount" name="amount" data-ng-model="order.merchantParam1" min="0" step="1" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                            <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="param2">Deposited on Date</label>
+                                            <input type="date" class="form-control" id="param2" name="param2" data-ng-model="order.merchantParam2" min="0" step="1" required>
+                                        </div>
+                                        <div class="form-group col-md-6">
+                                            <label for="tempsideEffects" style="visibility: hidden">tmp </label>
+                                            <input type="text" class="form-control" id="tempsideEffects" style="visibility: hidden">
+                                        </div>
+                                        
+                                    </div>
+
+                                    <div class="checkbox form-group col-md-12">
+                                        <button type="submit" class="btn btn-success" style="margin-left: 15px;" data-ng-click="AddOrder()" >Add Money</button> <!--data-ng-click="saveCategory()"-->
+                                    </div>
+                                </form>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- content ends -->
+            </div><!--/#content.col-md-0-->
+        </div><!--/fluid-row-->
+
+        <!-- external javascript -->
+
+        <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
+
+        <!-- library for cookie management -->
+        <script src="js/jquery.cookie.js"></script>
+        <!-- calender plugin -->
+        <script src='bower_components/moment/min/moment.min.js'></script>
+        <script src='bower_components/fullcalendar/dist/fullcalendar.min.js'></script>
+        <!-- data table plugin -->
+        <script src='js/jquery.dataTables.min.js'></script>
+
+        <!-- select or dropdown enhancer -->
+        <script src="bower_components/chosen/chosen.jquery.min.js"></script>
+        <!-- plugin for gallery image view -->
+        <script src="bower_components/colorbox/jquery.colorbox-min.js"></script>
+        <!-- notification plugin -->
+        <script src="js/jquery.noty.js"></script>
+        <!-- library for making tables responsive -->
+        <script src="bower_components/responsive-tables/responsive-tables.js"></script>
+        <!-- tour plugin -->
+        <script src="bower_components/bootstrap-tour/build/js/bootstrap-tour.min.js"></script>
+        <!-- star rating plugin -->
+        <script src="js/jquery.raty.min.js"></script>
+        <!-- for iOS style toggle switch -->
+        <script src="js/jquery.iphone.toggle.js"></script>
+        <!-- autogrowing textarea plugin -->
+        <script src="js/jquery.autogrow-textarea.js"></script>
+        <!-- multiple file upload plugin -->
+        <script src="js/jquery.uploadify-3.1.min.js"></script>
+        <!-- history.js for cross-browser state change on ajax -->
+        <script src="js/jquery.history.js"></script>
+        <!-- application script for Charisma demo -->
+        <script src="js/charisma.js"></script>
+
+
+    </body>
+</html>
+

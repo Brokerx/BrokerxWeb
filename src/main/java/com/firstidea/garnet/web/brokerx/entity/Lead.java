@@ -122,6 +122,8 @@ public class Lead implements Serializable {
     @Size(max = 100)
     @Column(name = "Comments")
     private String comments;
+    @Column(name = "DeletedbyUserIDs")
+    private String deletedbyUserIDs;
     @Column(name = "DealDoneDttm")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dealDoneDttm;
@@ -145,7 +147,9 @@ public class Lead implements Serializable {
     @Transient
     private String createdUserType;
     @Transient
-    private Boolean isMoveToPending;;
+    private Boolean isMoveToPending;
+    @Transient
+    private Boolean isDeleting;
 
     public Lead() {
     }
@@ -439,6 +443,14 @@ public class Lead implements Serializable {
         this.comments = comments;
     }
 
+    public String getDeletedbyUserIDs() {
+        return deletedbyUserIDs;
+    }
+
+    public void setDeletedbyUserIDs(String deletedbyUserIDs) {
+        this.deletedbyUserIDs = deletedbyUserIDs;
+    }
+
     public Date getDealDoneDttm() {
         return dealDoneDttm;
     }
@@ -517,6 +529,14 @@ public class Lead implements Serializable {
 
     public void setIsMoveToPending(Boolean isMoveToPending) {
         this.isMoveToPending = isMoveToPending;
+    }
+
+    public Boolean getIsDeleting() {
+        return isDeleting;
+    }
+
+    public void setIsDeleting(Boolean isDeleting) {
+        this.isDeleting = isDeleting;
     }
 
     @Override

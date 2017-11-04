@@ -21,6 +21,7 @@ import com.firstidea.garnet.web.brokerx.util.ApptDateUtils;
 import com.firstidea.garnet.web.brokerx.util.GCMUtils;
 import com.firstidea.garnet.web.brokerx.util.GarnetStringUtils;
 import com.firstidea.garnet.web.brokerx.util.JsonConverter;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Date;
@@ -358,6 +359,44 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
                         .setParameter("userIDs", userIDs);
                 sellerStatusCounts = sellerStatusQuery.getResultList();
             }
+            Map<Integer, BigDecimal> brokerEarningsMap = new HashMap();
+            Map<Integer, BigDecimal> sellerEarningsMap = new HashMap();
+            Map<Integer, BigDecimal> buyerSpendingsMap = new HashMap();
+            if (isBroker) {
+                Query brokerEarningQuery = em.createNativeQuery(QueryConstants.GET_BROKER_EARNINGS);
+                List<Object[]> brokerEarnings = brokerEarningQuery.getResultList();
+                for (Object[] brokerEarning : brokerEarnings) {
+                    Integer userID = (Integer) brokerEarning[0];
+                    BigDecimal earning = (BigDecimal) brokerEarning[1];
+                    brokerEarningsMap.put(userID, earning);
+                }
+            } else {
+                Query buyerSpendingQuery = em.createNativeQuery(QueryConstants.GET_BUYER_SPENDING);
+                List<Object[]> buyerSpendings = buyerSpendingQuery.getResultList();
+                for (Object[] buyerSpending : buyerSpendings) {
+                    Integer userID = (Integer) buyerSpending[0];
+                    BigDecimal earning = (BigDecimal) buyerSpending[1];
+                    if (buyerSpendingsMap.containsKey(userID)) {
+                        BigDecimal totalEarning = buyerSpendingsMap.get(userID).add(earning);
+                        buyerSpendingsMap.put(userID, totalEarning);
+                    } else {
+                        buyerSpendingsMap.put(userID, earning);
+                    }
+                }
+
+                Query SellerEarningsQuery = em.createNativeQuery(QueryConstants.GET_SELLER_EARNING);
+                List<Object[]> sellerEarnings = SellerEarningsQuery.getResultList();
+                for (Object[] sellerEarning : sellerEarnings) {
+                    Integer userID = (Integer) sellerEarning[0];
+                    BigDecimal earning = (BigDecimal) sellerEarning[1];
+                    if (sellerEarningsMap.containsKey(userID)) {
+                        BigDecimal totalEarning = sellerEarningsMap.get(userID).add(earning);
+                        sellerEarningsMap.put(userID, totalEarning);
+                    } else {
+                        sellerEarningsMap.put(userID, earning);
+                    }
+                }
+            }
             Map<Integer, Integer> buyerActiveDealsCount = new HashMap();
             Map<Integer, Integer> buyerPendingDealsCount = new HashMap();
             Map<Integer, Integer> buyerDoneDealsCount = new HashMap();
@@ -398,6 +437,21 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
             for (User user : users) {
                 UserDTO userDTO = new UserDTO();
                 userDTO.setUserInfo(user);
+                if (brokerEarningsMap.containsKey(user.getUserID())) {
+                    userDTO.setBrokerEarnings(brokerEarningsMap.get(user.getUserID()));
+                } else {
+                    userDTO.setBrokerEarnings(BigDecimal.ZERO);
+                }
+                if (buyerSpendingsMap.containsKey(user.getUserID())) {
+                    userDTO.setBuyerspendings(buyerSpendingsMap.get(user.getUserID()));
+                } else {
+                    userDTO.setBuyerspendings(BigDecimal.ZERO);
+                }
+                if (sellerEarningsMap.containsKey(user.getUserID())) {
+                    userDTO.setSellerEarnings(sellerEarningsMap.get(user.getUserID()));
+                } else {
+                    userDTO.setSellerEarnings(BigDecimal.ZERO);
+                }
                 if (buyerActiveDealsCount.containsKey(user.getUserID())) {
                     userDTO.setBuyerActiveDealsCount(buyerActiveDealsCount.get(user.getUserID()));
                 } else {
@@ -498,4 +552,7 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
         }
         return MessageDTO.getFailureDTO();
     }
+    
+    
+    
 }
