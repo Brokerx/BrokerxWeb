@@ -2,6 +2,7 @@ package com.firstidea.garnet.web.brokerx.ctrl;
 
 import com.firstidea.garnet.web.brokerx.ctrl.impl.AnalysisCtrlImpl;
 import com.firstidea.garnet.web.brokerx.ctrl.impl.ChatCtrlImpl;
+import com.firstidea.garnet.web.brokerx.ctrl.impl.DashBoardCtrlImpl;
 import com.firstidea.garnet.web.brokerx.ctrl.impl.FileCtrlImpl;
 import com.firstidea.garnet.web.brokerx.ctrl.impl.LeadCtrlImpl;
 import com.firstidea.garnet.web.brokerx.ctrl.impl.UserCtrlImpl;
@@ -21,4 +22,6 @@ public interface CtrlCollection {
     FileCtrl FILE_CTRL = new FileCtrlImpl();
     
     ChatCtrl CHAT_CTRL = new ChatCtrlImpl();
+    
+    DashBoardCtrl DASHBOARD_CTRL = new DashBoardCtrlImpl();
 }

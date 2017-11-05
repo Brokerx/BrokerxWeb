@@ -7,6 +7,7 @@ package com.firstidea.garnet.web.brokerx.service.bean;
 
 import com.firstidea.garnet.web.brokerx.admin.ApplicationUser;
 import com.firstidea.garnet.web.brokerx.constants.QueryConstants;
+import com.firstidea.garnet.web.brokerx.dto.DashboardDTO;
 import com.firstidea.garnet.web.brokerx.dto.DropDownValuesDTO;
 import com.firstidea.garnet.web.brokerx.dto.MessageDTO;
 import com.firstidea.garnet.web.brokerx.dto.UserDTO;
@@ -553,6 +554,6 @@ public class BrokerxUserServiceBean implements BrokerxUserService {
         return MessageDTO.getFailureDTO();
     }
     
-    
-    
-}
+            
+
+        }

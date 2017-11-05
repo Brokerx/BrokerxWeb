@@ -31,6 +31,7 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(com.firstidea.garnet.web.brokerx.rest.AnalysisResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.ChatResource.class);
+        resources.add(com.firstidea.garnet.web.brokerx.rest.DashboardResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.FileResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.LeadResource.class);
         resources.add(com.firstidea.garnet.web.brokerx.rest.LoginResource.class);

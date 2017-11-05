@@ -54,6 +54,7 @@ angular.module('Reachx').constant('DSConstants', {
     'PAGE_SAR': "/SAR",
     'PAGE_SYNTHESIS': "/Synthesis",
     'PAGE_UPLOAD_EXEL': "/uploadExel",
+    'PAGE_USER_LEADS': "/userLeads",
 
     'LOGIN_URL': 'webresources/login/admin',
     'GET_USERS': 'webresources/user/getUsers',
@@ -65,6 +66,7 @@ angular.module('Reachx').constant('DSConstants', {
     'GET_CATEGORIES': 'webresources/category/getAllCategories',
     'DELETE_CATEGORY': 'webresources/category/deleteCategory',
     'GET_DASHBOARD': 'webresources/dashboard/getDashboard',
+    'GET_DASHBOARD_LEAD': 'webresources/lead/getDashboardLeads',
     'SAVE_CATEGORY': 'webresources/category/saveCategory',
     'GET_FILES': 'webresources/files/getFiles',
     'SAVE_FILE': 'webresources/files/saveFile',

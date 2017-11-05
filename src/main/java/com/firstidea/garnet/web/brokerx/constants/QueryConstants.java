@@ -159,10 +159,67 @@ public interface QueryConstants {
             + " UNION ALL "
             + " SELECT AssignedToUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
             + " where Type='S' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by AssignedToUserID";
-    
+
     String GET_SELLER_EARNING = "SELECT CreatedUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
             + " where Type='S' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by CreatedUserID  "
             + " UNION ALL "
             + " SELECT AssignedToUserID,sum(BasicPrice*Qty) as amount FROM Brokerx.Lead  "
             + " where Type='S' and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by AssignedToUserID";
+
+    //Dashboard Queries
+    String GET_TOTAL_USER_COUNT = "SELECT count(*) from User where IsBroker=0";
+
+    String GET_CURRENT_MONTH_USER_COUNT = "SELECT count(*) from User"
+            + " WHERE SignupDttm > :monthStartDate  AND IsBroker=0";
+
+    String GET_TOTAL_BROKER_COUNT = "SELECT count(*) from User where IsBroker=1";
+
+    String GET_CURRENT_MONTH_BROKER_COUNT = "SELECT count(*) from User"
+            + " WHERE SignupDttm > :monthStartDate  AND IsBroker=1";
+
+    String GET_TOTAL_DEALS_COUNT = "Select count(*) from Lead "
+            + " WHERE BrokerStatus not in('X','P','L')";
+
+    String GET_CURRENT_MONTH_TOTAL_DEALS_COUNT = "Select count(*) from Lead "
+            + " WHERE BrokerStatus  not in('X','P','L') AND  CreatedDttm > :monthStartDate";
+
+    String GET_NEW_USER_SUMMARY = "SELECT count(UserID),date_format(SignupDttm, '%Y %M') as monthYear From User "
+            + " where IsBroker=0 "
+            + " Group BY monthYear "
+            + " Order by SignupDttm desc "
+            + " limit 6";
+
+    String GET_NEW_BROKER_SUMMARY = "SELECT count(UserID),date_format(SignupDttm, '%Y %M') as monthYear From User "
+            + " where IsBroker=1 "
+            + " Group BY monthYear "
+            + " Order by SignupDttm desc "
+            + " limit 6";
+
+    String GET_ACTIVE_DEALS_SUMMARY = "SELECT count(LeadID),date_format(CreatedDttm, '%Y %M') as monthYear From Lead "
+            + " WHERE BrokerStatus  not in('X','P','L') "
+            + "Group BY monthYear "
+            + "Order by CreatedDttm desc "
+            + "limit 6";
+
+    String GET_DEALS_DONE_SUMMARY = "SELECT count(LeadID),date_format(CreatedDttm, '%Y %M') as monthYear From Lead "
+            + " WHERE BrokerStatus='D' "
+            + "Group BY monthYear "
+            + "Order by CreatedDttm desc "
+            + "limit 6";
+
+    String GET_BUYER_AMOUNT_SUMMARY = "Select sum(amount)  as amount,date_format(CreatedDttm, '%Y %M') as monthYear"
+            + " FROM BuyerAmountSummaryVW"
+            + " WHERE amount IS NOT null"
+            + " Group by monthYear"
+            + " Order by CreatedDttm desc limit 6";
+
+    String GET_SELLER_AMOUNT_SUMMARY = "Select sum(amount) as amount,date_format(CreatedDttm, '%Y %M') as monthYear "
+            + " FROM SellerAmountSummaryVW"
+            + " WHERE amount IS NOT null"
+            + " Group by monthYear"
+            + " Order by CreatedDttm desc limit 6";
+
+    String GET_BROKER_AMOUNT_SUMMARY = "SELECT sum(BuyerBrokerage+SellerBrokerage) as amount,date_format(CreatedDttm, '%Y %M') as monthYear  FROM Lead "
+            + "WHERE BuyerBrokerage is not null and SellerBrokerage is not null and BuyerStatus='D' and SellerStatus='D' and BrokerStatus='D' Group by monthYear Order by CreatedDttm desc Limit 6";
+
 }

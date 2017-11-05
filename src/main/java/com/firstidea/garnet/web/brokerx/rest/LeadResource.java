@@ -163,6 +163,16 @@ public class LeadResource extends AppResource {
         leadCtrl.setUserRequest(request);
         return leadCtrl.getHistory(userID, startDate, endDate);
     }
+
+    @POST
+    @Path("/getDashboardLeads")
+    @Produces("application/json")
+    public String getDashboardLeads(@FormParam("userID") Integer userID,
+            @FormParam("status")  String status,@FormParam("isBroker") boolean isBroker) {
+        LeadCtrl leadCtrl = CtrlCollection.LEAD_CTRL;
+        leadCtrl.setUserRequest(request);
+        return leadCtrl.getDashboardLeads(userID, status, isBroker);
+    }
     
     @POST
     @Path("/dealDone")

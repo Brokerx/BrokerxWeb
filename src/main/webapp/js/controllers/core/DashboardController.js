@@ -37,8 +37,8 @@
                 }
             }
 
-            for(var i in $scope.dashboardData.adsSummary) {
-                var summary = $scope.dashboardData.adsSummary[i];
+            for(var i in $scope.dashboardData.dealsSummary) {
+                var summary = $scope.dashboardData.dealsSummary[i];
                 adsSummaryMonths.push(summary.month);
                 if(summary.data1) {
                     adsSummaryData1.push(parseInt(summary.data1));
@@ -52,8 +52,8 @@
                 }
             }
 
-            for(var i in $scope.dashboardData.walletSummary) {
-                var summary = $scope.dashboardData.walletSummary[i];
+            for(var i in $scope.dashboardData.transactionSummary) {
+                var summary = $scope.dashboardData.transactionSummary[i];
                 walletSummaryMonths.push(summary.month);
                 if(summary.data1) {
                     walletSummaryData1.push(parseInt(summary.data1));
@@ -87,17 +87,17 @@
                 yAxis: {
                     min: 0,
                     title: {
-                        text: 'New Users'
+                        text: 'User Count'
                     }
                 },
                 credits: {
                     enabled: false
                 },
                 series: [{
-                    name: 'New Users',
+                    name: 'Buyer/Seller',
                     data: userSummeryData1
                 }, {
-                    name: 'Blocked Users',
+                    name: 'Brokers',
                     data: userSummeryData2
                 }]
             });
@@ -108,7 +108,7 @@
                     renderTo: 'adsChartContainer'
                 },
                 title: {
-                    text: 'Ads Posted'
+                    text: 'Deals Created'
                 },
                 xAxis: {
                     categories: adsSummaryMonths
@@ -116,17 +116,17 @@
                 yAxis: {
                     min: 0,
                     title: {
-                        text: 'Ads Posted'
+                        text: 'Deals Created'
                     }
                 },
                 credits: {
                     enabled: false
                 },
                 series: [{
-                    name: 'Ads Posted',
+                    name: 'Active Deals',
                     data: adsSummaryData1
                 }, {
-                    name: 'Deals Sealed',
+                    name: 'Deals Done',
                     data: adsSummaryData2
                 }]
             });
@@ -137,7 +137,7 @@
                     renderTo: 'rechargeChartContainer'
                 },
                 title: {
-                    text: 'Wallet Summary'
+                    text: 'Transaction Summary'
                 },
                 xAxis: {
                     categories: walletSummaryMonths
@@ -145,20 +145,20 @@
                 yAxis: {
                     min: 0,
                     title: {
-                        text: 'User Activity'
+                        text: 'Spending/Eanrning'
                     }
                 },
                 credits: {
                     enabled: false
                 },
                 series: [{
-                    name: 'Wallet Recharge Amount',
+                    name: 'Buyer Transaction',
                     data: walletSummaryData1
                 }, {
-                    name: 'Paid For Ad Post',
+                    name: 'Seller Transaction',
                     data: walletSummaryData2
                 }, {
-                    name: 'Paid For Info',
+                    name: 'Broker Transaction',
                     data: walletSummaryData3
                 }]
             });

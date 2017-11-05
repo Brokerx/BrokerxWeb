@@ -62,10 +62,10 @@ public class LeadServiceBean implements LeadService {
                 fieldsAltered = getFieldsAltered(prevLead, lead);
                 if (lead.getIsDeleting() != null && lead.getIsDeleting()) {
                     String prevDeleteduser = prevLead.getDeletedbyUserIDs();
-                    if(prevDeleteduser == null){
-                        prevDeleteduser = ","+lead.getDeletedbyUserIDs()+",";
+                    if (prevDeleteduser == null) {
+                        prevDeleteduser = "," + lead.getDeletedbyUserIDs() + ",";
                     } else {
-                        prevDeleteduser += lead.getDeletedbyUserIDs()+",";
+                        prevDeleteduser += lead.getDeletedbyUserIDs() + ",";
                     }
                     lead.setDeletedbyUserIDs(prevDeleteduser);
                     lead = em.merge(lead);
@@ -88,7 +88,7 @@ public class LeadServiceBean implements LeadService {
                         Query query = em.createQuery(QueryConstants.GET_LEAD_BY_PARENT_LEADID)
                                 .setParameter("parentLeadID", lead.getLeadID());
                         Lead childLead = (Lead) query.getSingleResult();
-                        if(childLead != null) {
+                        if (childLead != null) {
                             childLead.setBuyerStatus(LeadCurrentStatus.Rejected.getStatus());
                             childLead.setBrokerStatus(LeadCurrentStatus.Rejected.getStatus());
                             childLead.setSellerStatus(LeadCurrentStatus.Rejected.getStatus());
@@ -306,16 +306,16 @@ public class LeadServiceBean implements LeadService {
             int chatsSummaryUpdateCount = chatSummaryUpdatequery.executeUpdate();
 
             childLead = em.merge(childLead);
-            
+
             List<Integer> leadIds = new ArrayList<Integer>();
             leadIds.add(childLead.getLeadID());
             leadIds.add(parentLead.getLeadID());
-                   
+
             Query deleteNotificationQuery = em.createNativeQuery(QueryConstants.DELETE_NOTIFICATION_BY_LEADIDS)
                     .setParameter("leadIDS", leadIds);
-            
+
             int notificationRowsCount = deleteNotificationQuery.executeUpdate();
-            
+
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();
             messageDTO.setData(childLead);
             sendDealDoneNotification(childLead);
@@ -544,6 +544,81 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
+    public MessageDTO getDashboardLeads(Integer userID, String status, boolean isBroker) {
+        try {
+            StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
+            Map<String, Object> queryParams = new HashMap<String, Object>();
+            List<String> statuses = GarnetStringUtils.getListOfComaValues(status);
+            if (!isBroker) {
+                queryString.append(" AND (l.createdUserID= :createdUserID"
+                        + " OR l.assignedToUserID= :createdUserID) ");
+                queryParams.put("createdUserID", userID);
+                
+                queryString.append(" AND  (l.buyerStatus in(:status) OR l.sellerStatus in(:status))");
+                queryParams.put("status", statuses);
+            } else {
+                queryString.append(" AND  l.brokerID= :createdUserID ");
+                queryParams.put("createdUserID", userID);
+                
+                queryString.append(" AND  l.brokerStatus in(:status)");
+                queryParams.put("status", statuses);
+            }
+            
+            Query query = em.createQuery(queryString.toString());
+             for (String param : queryParams.keySet()) {
+                query.setParameter(param, queryParams.get(param));
+            }
+            List<Lead> leads = new ArrayList<Lead>();
+            List<Lead> queryResultLeads = query.getResultList();
+            if(isBroker) {
+                leads = queryResultLeads;
+            } else {
+                for(Lead lead: queryResultLeads) {
+                    if(lead.getCreatedUserID() == userID && lead.getType().equals("B") && statuses.contains(lead.getBuyerStatus())) {
+                        leads.add(lead);
+                    }else if(lead.getCreatedUserID() == userID && lead.getType().equals("S") && statuses.contains(lead.getSellerStatus())) {
+                        leads.add(lead);
+                    }else if(lead.getAssignedToUserID().intValue()== userID && lead.getType().equals("S") && statuses.contains(lead.getBuyerStatus())) {
+                        leads.add(lead);
+                    } else if(lead.getAssignedToUserID().intValue() == userID && lead.getType().equals("B") && statuses.contains(lead.getSellerStatus())) {
+                        leads.add(lead);
+                    }
+                }
+            }
+            if (leads != null && !leads.isEmpty()) {
+                List<Integer> userIDs = new ArrayList<Integer>();
+                for (Lead lead : leads) {
+                    userIDs.add(lead.getCreatedUserID());
+                    userIDs.add(lead.getBrokerID());
+                    if (lead.getAssignedToUserID() != null) {
+                        userIDs.add(lead.getAssignedToUserID());
+                    }
+                }
+                Query userQuery = em.createQuery(QueryConstants.GET_USERS_BY_USER_IDS)
+                        .setParameter("userIDs", userIDs);
+                List<User> users = userQuery.getResultList();
+                Map<Integer, User> usersMap = new HashMap();
+                for (User user : users) {
+                    usersMap.put(user.getUserID(), user);
+                }
+                for (Lead lead : leads) {
+                    lead.setBroker(usersMap.get(lead.getBrokerID()));
+                    if (lead.getAssignedToUserID() != null) {
+                        lead.setAssignedToUser(usersMap.get(lead.getAssignedToUserID()));
+                    }
+                    lead.setCreatedUser(usersMap.get(lead.getCreatedUserID()));
+                }
+            }
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(leads);
+            return messageDTO;
+        } catch (Exception e) {
+             logger.info(LeadServiceBean.class + " getDashboardLeads() : ERROR: " + e.toString());
+        }
+        return MessageDTO.getFailureDTO();
+    }
+
+    @Override
     public MessageDTO getAnalysisLeads(Integer leadID, Integer userID, Integer otherUserID, String type, String brokerageStatus, String item, String brokerIDString, Date startDate, Date endDate) {
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
@@ -601,8 +676,8 @@ public class LeadServiceBean implements LeadService {
                     queryParams.put("endDate", endDate);
                 }
             }
-            
-            if (isBroker ){
+
+            if (isBroker) {
                 queryString.append(" order by (sellerBrokerage+buyerBrokerage) desc");
             } else {
                 queryString.append(" order by (basicPrice*qty) desc");
@@ -976,7 +1051,7 @@ public class LeadServiceBean implements LeadService {
         sendDealDonePushNotification(usersMap.get(lead.getCreatedUserID()).getGcmKey(), createdUsername, createdUserNotification);
         sendDealDonePushNotification(usersMap.get(lead.getAssignedToUserID()).getGcmKey(), createdUsername, assignedUserNotification);
     }
-    
+
     private void sendDealDonePushNotification(String gcmKey, String userName, Notification notification) {
         String type = GCMUtils.TYPE_DEAL_DONE;
         if (StringUtils.isNotBlank(gcmKey)) {

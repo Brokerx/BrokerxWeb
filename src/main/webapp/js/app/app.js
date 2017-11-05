@@ -26,7 +26,7 @@ angular.module('Reachx').config(['$routeProvider',
         $routeProvider.when('/allBrokers', {templateUrl: 'pages/AllBrokers.html?v=150914', controller: 'AllBrokersController'});
         $routeProvider.when('/dashboard', {templateUrl: 'pages/dashboard.html?v=150914', controller: 'DashboardController'});
         $routeProvider.when('/addCategory', {templateUrl: 'pages/AddCategory.html?v=150914', controller: 'AddCategoryController'});
-        $routeProvider.when('/addMoney', {templateUrl: 'pages/AddMoney.html?v=150914', controller: 'AddMoneyController'});
+        $routeProvider.when('/userLeads', {templateUrl: 'pages/UserLeads.html?v=150914', controller: 'UsersLeadsController'});
         $routeProvider.when('/categories', {templateUrl: 'pages/AllCategories.html?v=150914', controller: 'CategoryController'});
         $routeProvider.when('/adsReport', {templateUrl: 'pages/AdsReport.html?v=150914', controller: 'AdsReportController'});
         $routeProvider.when('/walletSummary', {templateUrl: 'pages/WalletSummary.html?v=150914', controller: 'WalletSummaryController'});

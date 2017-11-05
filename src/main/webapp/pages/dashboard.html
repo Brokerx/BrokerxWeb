@@ -15,32 +15,32 @@
             <div>
                 <ul class="breadcrumb">
                     <li>
-                        <a href="#">Reachx Dashboard</a>
+                        <a href="#">BrokerX Dashboard</a>
                     </li>
                 </ul>
             </div>
             <div class=" row">
-                <div class="col-md-3 col-sm-3 col-xs-6">
+                <div class="col-md-4 col-sm-4 col-xs-8">
                     <a data-toggle="tooltip" title="{{dashboardData.currentMonthUser}} New Members In Current Month" class="well top-block" href="" data-ng-click="gotoEnd()">
                         <i class="glyphicon glyphicon-user blue"></i>
 
                         <div>Total Members</div>
-                        <div>{{dashboardData.totalUser}}</div>
+                        <div>{{dashboardData.totalUsers}}</div>
                         <span class="notification">{{dashboardData.currentMonthUser}}</span>
                     </a>
                 </div>
 
-                <div class="col-md-3 col-sm-3 col-xs-6">
-                    <a data-toggle="tooltip" title="{{dashboardData.currentMonthProUsers}} Pro Members In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
-                        <i class="glyphicon glyphicon-star green"></i>
+                <div class="col-md-4 col-sm-4 col-xs-8">
+                    <a data-toggle="tooltip" title="{{dashboardData.currentMonthBrokers}} Pro Members In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
+                        <i class="glyphicon glyphicon-user green"></i>
 
-                        <div>Pro Members</div>
-                        <div>{{dashboardData.proUsers}}</div>
-                        <span class="notification green">{{dashboardData.currentMonthProUsers}}</span>
+                        <div>Total Broker</div>
+                        <div>{{dashboardData.totalBrokers}}</div>
+                        <span class="notification green">{{dashboardData.currentMonthBrokers}}</span>
                     </a>
                 </div>
 
-                <div class="col-md-3 col-sm-3 col-xs-6">
+<!--                <div class="col-md-3 col-sm-3 col-xs-6">
                     <a data-toggle="tooltip" title="Rs. {{dashboardData.currentMonthRevenue}} In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
                         <i class="glyphicon glyphicon-shopping-cart yellow"></i>
 
@@ -48,15 +48,15 @@
                         <div>Rs. {{dashboardData.revenue}}</div>
                         <span class="notification yellow">Rs. {{dashboardData.currentMonthRevenue}}</span>
                     </a>
-                </div>
+                </div>-->
 
-                <div class="col-md-3 col-sm-3 col-xs-6">
+               <div class="col-md-4 col-sm-4 col-xs-8">
                     <a data-toggle="tooltip" title="{{dashboardData.currentMonthAds}} Ads In Current Month." class="well top-block" href="" data-ng-click="gotoEnd()">
                         <i class="glyphicon glyphicon-film red"></i>
 
-                        <div>Total Ads</div>
-                        <div>{{dashboardData.totalAds}}</div>
-                        <span class="notification red">{{dashboardData.currentMonthAds}}</span>
+                        <div>Total Deals</div>
+                        <div>{{dashboardData.totalNoOfdeals}}</div>
+                        <span class="notification red">{{dashboardData.currentMonthDeals}}</span>
                     </a>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                 <div class="box col-md-12">
                     <div class="box-inner">
                         <div class="box-header well">
-                            <h2><i class="glyphicon glyphicon-info-sign"></i> Advertisements Summary Graph</h2>
+                            <h2><i class="glyphicon glyphicon-info-sign"></i> Deals Summary Graph</h2>
                         </div>
                         <div id="adsChartContainer" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
                     </div>

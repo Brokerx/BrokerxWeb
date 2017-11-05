@@ -82,4 +82,15 @@ public abstract class JndiService {
         }
         return service;
      }
+     
+     public final static BrokerxDashboardService getDashboardService() {
+         BrokerxDashboardService service = null;
+        try {
+            Context context = getInitialContext();
+            service = (BrokerxDashboardService) context.lookup("java:global/Brokerx/BrokerxDashboardServiceBean");
+        } catch (NamingException ex) {
+            Logger.getLogger(BrokerxDashboardService.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return service;
+     }
 }
