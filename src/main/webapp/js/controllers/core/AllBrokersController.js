@@ -34,7 +34,7 @@
                 status='D';
             }
             var requestParameter = "userID="+userID+"&status="+status+"&isBroker=true";
-            HttpService.getDataFromServer(DSConstants.GET_DASHBOARD_LEAD, "POST", requestParameter, null, true, DSConstants.REQUEST_TIME_OUT, $scope.onGetUserLeadsSuccess, $scope.onGetUserLeadsError, "GET_USER_LEADS");
+            HttpService.getDataFromServer(DSConstants.GET_DASHBOARD_USER_LEAD, "POST", requestParameter, null, true, DSConstants.REQUEST_TIME_OUT, $scope.onGetUserLeadsSuccess, $scope.onGetUserLeadsError, "GET_USER_LEADS");
 //            $location.path(DSConstants.PAGE_ADD_USER);
         }; 
         $scope.onGetUserLeadsSuccess = function (data) {

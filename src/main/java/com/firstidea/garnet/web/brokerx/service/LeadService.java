@@ -32,5 +32,6 @@ public interface LeadService {
     public MessageDTO saveLeadStatusHistory(LeadStatusHistory leadStatusHistory);
     public MessageDTO getLeadDocuments(Integer leadID);
     public MessageDTO uploadDocument(LeadDocument leadDocument, Map<String, FileItem> fileItemsMap);
-    public MessageDTO getDashboardLeads(Integer userID, String status, boolean isBroker);
+    public MessageDTO getDashboardUserLeads(Integer userID, String status, boolean isBroker);
+    public MessageDTO getDashBoardLeads(String type);
 }

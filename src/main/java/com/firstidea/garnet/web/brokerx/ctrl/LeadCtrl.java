@@ -26,5 +26,6 @@ public interface LeadCtrl extends AuthenticationCtrl{
     public String saveLeadStatusHistory(String leadStatusHistoryJSON);
     public String getLeadDocuments(Integer leadID);
     public String uploadDocument(String fileJSON, Map<String, FileItem> fileItemsMap);
-    public String getDashboardLeads(Integer userID, String status, boolean isBroker);
+    public String getDashboardUserLeads(Integer userID, String status, boolean isBroker);
+    public String getDashBoardLeads(String type);
 }

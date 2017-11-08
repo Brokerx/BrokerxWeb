@@ -3,8 +3,8 @@
  */
 (function () {
 
-    AllUsersController.$inject = ['$scope', '$rootScope', 'HttpService', 'DSConstants', 'DSUtils', '$location', '$timeout']; //'LoginService',
-    function AllUsersController($scope, $rootScope, HttpService, DSConstants, DSUtils, $location, $timeout) {
+    LeadSummaryController.$inject = ['$scope', '$rootScope', 'HttpService', 'DSConstants', 'DSUtils', '$location', '$timeout']; //'LoginService',
+    function LeadSummaryController($scope, $rootScope, HttpService, DSConstants, DSUtils, $location, $timeout) {
 
         $scope.users = [];
         /**
@@ -66,5 +66,5 @@
 
     }
 
-    angular.module('Reachx').controller('AllUsersController', AllUsersController);
+    angular.module('Reachx').controller('LeadSummaryController', LeadSummaryController);
 }());

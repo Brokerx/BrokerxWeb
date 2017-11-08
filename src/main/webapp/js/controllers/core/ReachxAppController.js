@@ -373,12 +373,39 @@
             DSUtils.hideLoader();
             alert("Unable to get User List");
         };
-//        $scope.getUsers = function () {
-//            DSUtils.showLoader("Getting Users...");
-//            var requestParameter = "";
-//            HttpService.getDataFromServer(DSConstants.GET_USERS, "POST", requestParameter, null, true, DSConstants.REQUEST_TIME_OUT, $scope.onGetUserSuccess, $scope.onGetUserError, "GET_USERS");
-//        }
-
+        
+        $scope.getDashboardLeads = function (type) {
+            DSUtils.showLoader("Getting Deals...");
+            localStorage.setItem("GET_DASHBOARD_LEADS_TYPE", type);
+            var requestParameter = "type=" + type;
+            HttpService.getDataFromServer(DSConstants.GET_DASHBOARD_LEADS_BY_TYPE, "POST", requestParameter, null, true, DSConstants.REQUEST_TIME_OUT, $scope.onGetDashboardLeadsSuccess, $scope.onGetDashboardLeadsError, "GET_DASHBOARD_LEADS");
+        }
+        
+        $scope.onGetDashboardLeadsSuccess = function (data) {
+            DSUtils.hideLoader();
+            if (data.messageID == 100) {
+                //TODO Set loginUser details tocontrollerdatainstanceService or loginService
+                var type = localStorage.getItem("GET_DASHBOARD_LEADS_TYPE");
+                if(type=='Active') {
+                    localStorage.setItem("ALL_ACTIVE_LEADS", JSON.stringify(data.data));
+                    $location.path(DSConstants.PAGE_ALL_ACTIVE_DEALS);
+                } else if(type=='Done') {
+                    localStorage.setItem("ALL_COMPLETED_LEADS", JSON.stringify(data.data));
+                    $location.path(DSConstants.PAGE_ALL_COMPLTED_DEALS);
+                } else {
+                    localStorage.setItem("ALL_REJECTED_LEADS", JSON.stringify(data.data));
+                    $location.path(DSConstants.PAGE_ALL_REJECTED_DEALS);
+                }
+            } else {  // login is successful ir erroID == 100, so save the subscription and call the calendar request
+                //DSUtils.hideLoader();
+                //loginFailure(data.messageText);
+            }
+        };
+        $scope.onGetDashboardLeadsError = function (data) {
+            DSUtils.hideLoader();
+            alert("Unable to get Deals");
+        };
+        
         $scope.onGetCategoriesSuccess = function (data, requestIdentifier) {
             DSUtils.hideLoader();
             if (data.messageID == 100) {

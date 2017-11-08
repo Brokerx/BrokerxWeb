@@ -260,6 +260,47 @@ public class LeadServiceBean implements LeadService {
 
         return MessageDTO.getFailureDTO();
     }
+    
+    @Override
+    public MessageDTO getDashBoardLeads(String type) {
+        try {
+            StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
+            Map<String, Object> queryParams = new HashMap<String, Object>();
+            String includeStatus =  LeadCurrentStatus.Accepted.getStatus() + "," + LeadCurrentStatus.Waiting.getStatus() + "," + LeadCurrentStatus.Reverted.getStatus();
+            if(type.equals("Done")) {
+                includeStatus =  LeadCurrentStatus.Done.getStatus();
+            }
+            if(type.equals("Rejected")) {
+                includeStatus =  LeadCurrentStatus.Rejected.getStatus();
+            }
+            List<String> includeStatusList = GarnetStringUtils.getListOfComaValues(includeStatus);
+            queryString.append(" AND (l.buyerStatus IN (:includeStatus) OR l.sellerStatus IN (:includeStatus))");
+//                    + " AND l.assignedToUserID Is Null");
+            queryParams.put("includeStatus", includeStatusList);
+            Query query = em.createQuery(queryString.toString());
+            for (String param : queryParams.keySet()) {
+                query.setParameter(param, queryParams.get(param));
+            }
+            List<Lead> leads = query.getResultList();
+            if (leads != null && !leads.isEmpty()) {
+                for (Lead lead : leads) {
+                    User broker = em.find(User.class, lead.getBrokerID());
+                    lead.setBroker(broker);
+                    if (lead.getAssignedToUserID() != null) {
+                        User assignedTouser = em.find(User.class, lead.getAssignedToUserID());
+                        lead.setAssignedToUser(assignedTouser);
+                    }
+                }
+            }
+            MessageDTO messageDTO = MessageDTO.getSuccessDTO();
+            messageDTO.setData(leads);
+            return messageDTO;
+        } catch (Exception e) {
+            logger.info(LeadServiceBean.class + " saveLead() : ERROR: " + e.toString());
+        }
+
+        return MessageDTO.getFailureDTO();
+    }
 
     @Override
     public MessageDTO dealDone(Integer leadID) {
@@ -544,7 +585,7 @@ public class LeadServiceBean implements LeadService {
     }
 
     @Override
-    public MessageDTO getDashboardLeads(Integer userID, String status, boolean isBroker) {
+    public MessageDTO getDashboardUserLeads(Integer userID, String status, boolean isBroker) {
         try {
             StringBuilder queryString = new StringBuilder(QueryConstants.GET_ALL_LEADS);
             Map<String, Object> queryParams = new HashMap<String, Object>();

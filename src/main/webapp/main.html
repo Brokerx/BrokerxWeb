@@ -115,9 +115,10 @@
                                 <li class="nav-header hidden-md">User</li>
                                 <li class="allUsers"><a class="ajax-link" href="#" data-ng-click="getUsers('broker')"><i class="glyphicon glyphicon-list"></i><span> All Brokers</span></a></li>
                                 <li class="allUsersNonBroker"><a class="ajax-link" href="#" data-ng-click="getUsers('nonBroker')"><i class="glyphicon glyphicon-list"></i><span> Buyers & Sellers</span></a></li>
-<!--                                <li class="nav-header hidden-md">Categories</li>
-                                <li class="allDrugs"><a class="ajax-link" href="#" data-ng-click="getCategories('GET_CATEGORIES')"> <i class="glyphicon glyphicon-list" ></i><span> All Categories</span></a></li>
-                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="openAddCategoryPage()"><i class="glyphicon glyphicon-plus"></i><span> Add Category</span></a></li>-->
+                                <li class="nav-header hidden-md">Deals Report</li>
+                                <li class="allDrugs"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Active')"> <i class="glyphicon glyphicon-list" ></i><span> All Active Deals</span></a></li>
+                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Done')"><i class="glyphicon glyphicon-plus"></i><span> All Completed Deals</span></a></li>
+                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Rejected')"><i class="glyphicon glyphicon-plus"></i><span> All Rejected Deals</span></a></li>
 <!--                               <li class="nav-header hidden-md">Reports</li>
                                 <li class="allSynthesis"><a class="ajax-link" href="#" data-ng-click="GetWalletSummary()"><i class="glyphicon glyphicon-list"></i><span> Revenue Report</span></a></li>
                                 <li class="addSynthesis"><a class="ajax-link" href="#" data-ng-click="getAllAds()"><i class="glyphicon glyphicon-plus"></i><span> Ads repors</span></a></li>-->
@@ -193,6 +194,7 @@
         <script src="js/controllers/core/AddMoneyController.js"></script>
         <script src="js/controllers/core/CategoryController.js"></script>
         <script src="js/controllers/core/DashboardController.js"></script>
+        <script src="js/controllers/core/LeadSummaryController.js"></script>
         <script src="js/controllers/core/AdsReportController.js"></script>
         <script src="js/controllers/core/WalletSummaryController.js"></script>
         <script src="js/controllers/core/UsersLeadsController.js"></script>

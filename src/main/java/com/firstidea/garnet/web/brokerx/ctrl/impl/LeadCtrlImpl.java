@@ -113,8 +113,14 @@ public class LeadCtrlImpl extends Authentication implements LeadCtrl {
     }
    
     @Override
-   public String getDashboardLeads(Integer userID, String status, boolean isBroker){
-        return JsonConverter.createJson(leadService.getDashboardLeads(userID, status, isBroker));
+   public String getDashboardUserLeads(Integer userID, String status, boolean isBroker){
+        return JsonConverter.createJson(leadService.getDashboardUserLeads(userID, status, isBroker));
+        
+    }
+   
+    @Override
+   public String getDashBoardLeads(String type){
+        return JsonConverter.createJson(leadService.getDashBoardLeads(type));
         
     }
 }
