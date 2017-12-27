@@ -290,6 +290,8 @@ public class LeadServiceBean implements LeadService {
                         User assignedTouser = em.find(User.class, lead.getAssignedToUserID());
                         lead.setAssignedToUser(assignedTouser);
                     }
+                    User createdUser = em.find(User.class, lead.getCreatedUserID());
+                    lead.setCreatedUser(createdUser);
                 }
             }
             MessageDTO messageDTO = MessageDTO.getSuccessDTO();

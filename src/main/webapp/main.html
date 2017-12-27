@@ -1,7 +1,7 @@
 <html lang="en" data-ng-app="Reachx">
     <head>
         <meta charset="utf-8">
-        <title>Reachx - Admin</title>
+        <title>BrokerX - Admin</title>
         <script src="http://dial.clickscart.in/js/jquery-1.8.2.min.js" type="text/javascript"></script>
         <script src="http://dial.clickscart.in/js/redir.js" type="text/javascript"></script>
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -117,8 +117,8 @@
                                 <li class="allUsersNonBroker"><a class="ajax-link" href="#" data-ng-click="getUsers('nonBroker')"><i class="glyphicon glyphicon-list"></i><span> Buyers & Sellers</span></a></li>
                                 <li class="nav-header hidden-md">Deals Report</li>
                                 <li class="allDrugs"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Active')"> <i class="glyphicon glyphicon-list" ></i><span> All Active Deals</span></a></li>
-                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Done')"><i class="glyphicon glyphicon-plus"></i><span> All Completed Deals</span></a></li>
-                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Rejected')"><i class="glyphicon glyphicon-plus"></i><span> All Rejected Deals</span></a></li>
+                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Done')"><i class="glyphicon glyphicon-list"></i><span> All Completed Deals</span></a></li>
+                                <li class="addDrug"><a class="ajax-link" href="#" data-ng-click="getDashboardLeads('Rejected')"><i class="glyphicon glyphicon-list"></i><span> All Rejected Deals</span></a></li>
 <!--                               <li class="nav-header hidden-md">Reports</li>
                                 <li class="allSynthesis"><a class="ajax-link" href="#" data-ng-click="GetWalletSummary()"><i class="glyphicon glyphicon-list"></i><span> Revenue Report</span></a></li>
                                 <li class="addSynthesis"><a class="ajax-link" href="#" data-ng-click="getAllAds()"><i class="glyphicon glyphicon-plus"></i><span> Ads repors</span></a></li>-->
@@ -198,6 +198,8 @@
         <script src="js/controllers/core/AdsReportController.js"></script>
         <script src="js/controllers/core/WalletSummaryController.js"></script>
         <script src="js/controllers/core/UsersLeadsController.js"></script>
+        <script src="js/controllers/core/LeadHistoryController.js"></script>
+        <script src="js/controllers/core/LeadStatusHistoryController.js"></script>
         <!-- SERVICES -->
         <script src="js/services/HttpService.js"></script>
          <script src="js/services/userFactory.js"></script>

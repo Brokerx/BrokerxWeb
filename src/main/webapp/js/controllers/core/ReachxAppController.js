@@ -386,14 +386,13 @@
             if (data.messageID == 100) {
                 //TODO Set loginUser details tocontrollerdatainstanceService or loginService
                 var type = localStorage.getItem("GET_DASHBOARD_LEADS_TYPE");
+                localStorage.setItem("LEAD_SUMMARY", JSON.stringify(data.data));
+//                $location.path(DSConstants.PAGE_LEAD_SUMMARY);
                 if(type=='Active') {
-                    localStorage.setItem("ALL_ACTIVE_LEADS", JSON.stringify(data.data));
                     $location.path(DSConstants.PAGE_ALL_ACTIVE_DEALS);
                 } else if(type=='Done') {
-                    localStorage.setItem("ALL_COMPLETED_LEADS", JSON.stringify(data.data));
                     $location.path(DSConstants.PAGE_ALL_COMPLTED_DEALS);
                 } else {
-                    localStorage.setItem("ALL_REJECTED_LEADS", JSON.stringify(data.data));
                     $location.path(DSConstants.PAGE_ALL_REJECTED_DEALS);
                 }
             } else {  // login is successful ir erroID == 100, so save the subscription and call the calendar request

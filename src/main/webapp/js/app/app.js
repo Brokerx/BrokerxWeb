@@ -27,9 +27,11 @@ angular.module('Reachx').config(['$routeProvider',
         $routeProvider.when('/dashboard', {templateUrl: 'pages/dashboard.html?v=150914', controller: 'DashboardController'});
         $routeProvider.when('/addCategory', {templateUrl: 'pages/AddCategory.html?v=150914', controller: 'AddCategoryController'});
         $routeProvider.when('/userLeads', {templateUrl: 'pages/UserLeads.html?v=150914', controller: 'UsersLeadsController'});
-        $routeProvider.when('/categories', {templateUrl: 'pages/AllCategories.html?v=150914', controller: 'CategoryController'});
-        $routeProvider.when('/adsReport', {templateUrl: 'pages/AdsReport.html?v=150914', controller: 'AdsReportController'});
-        $routeProvider.when('/walletSummary', {templateUrl: 'pages/WalletSummary.html?v=150914', controller: 'WalletSummaryController'});
+        $routeProvider.when('/activeDeals', {templateUrl: 'pages/LeadSummary.html?v=150914', controller: 'LeadSummaryController'});
+        $routeProvider.when('/completedDeals', {templateUrl: 'pages/LeadSummary.html?v=150914', controller: 'LeadSummaryController'});
+        $routeProvider.when('/rejectedDeals', {templateUrl: 'pages/LeadSummary.html?v=150914', controller: 'LeadSummaryController'});
+        $routeProvider.when('/leadHistory', {templateUrl: 'pages/LeadHistory.html?v=150914', controller: 'LeadHistoryController'});
+        $routeProvider.when('/leadStatus', {templateUrl: 'pages/LeadStatusHistory.html?v=150914', controller: 'LeadStatusHistoryController'});
 
     }]);
 
